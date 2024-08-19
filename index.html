@@ -253,16 +253,22 @@
         }
         .game-title {
             position: fixed;
-            background-color: rgba(0, 0, 0, 0.7);
+            background-color: rgba(0, 0, 0, 0.8);
             color: white;
             padding: 5px 10px;
-            border-radius: 4px;
+            border-radius: 5px;
             z-index: 1000;
             pointer-events: none;
-            font-size: 16px;
-            white-space: nowrap;
-            transform: translateY(-50%);
+            display: none;
+            text-align: center;
         }
+
+        .game-title .game-year {
+            display: block;
+            font-size: 0.8em;
+            margin-top: 2px;
+        }
+
         #milestone {
             position: fixed;
             top: 50px;
@@ -682,7 +688,7 @@
         <div id="genresList"></div>
         <div id="filterButtons">
             <button id="completedFilter">Только пройденные</button>
-            <button id="resetFiltersButton">Сбросить фильтры</button>
+            <button id="resetFiltersButton">Сбросить фильтр</button>
         </div>
         <div id="saturationContainer">
             <label for="saturationSlider">Насыщенность</label>
@@ -1954,7 +1960,7 @@
         }
 
         function showGameTitle(e, game) {
-            gameTitle.textContent = game.name;
+            gameTitle.innerHTML = `${game.name}<span class="game-year">(${game.year})</span>`;
             gameTitle.style.display = 'block';
             
             const titleRect = gameTitle.getBoundingClientRect();
@@ -2011,6 +2017,9 @@
             
             updateAllCellSizes();
             updateInProgressRow();
+
+            // Принудительно вызываем reflow
+            void grid.offsetHeight;
         }
 
         function updateAllCellSizes() {
@@ -2056,7 +2065,7 @@
         }
 
         function resetProgress() {
-            if (confirm('Вы уверены, что хотите сбросить весь прогресс?')) {
+            if (confirm('Вы уверены, что хотите сбросить весь прогрес?')) {
                 games.forEach(game => {
                     game.completed = false;
                     game.inProgress = false;
@@ -2097,7 +2106,7 @@
                 125: 'Постоянный гость в мире пикселей. Тебя там уже знают по имени?',
                 150: '150! Воу воу, полегче',
                 175: 'Говорят, на этом овне уже становятся стримерами. Страшно...',
-                200: 'Теперь т�� можешь официально игнорировать любые социальные пригаеия.',
+                200: 'Теперь т можешь официально игнорировать любые социальные пригаеия.',
                 300: 'GAMER',
                 350: 'Чем пахнет? А, это тв социальная жизнь леет.',
                 400: 'Игры пройдены, но где твоя личная жизнь?',
@@ -2269,14 +2278,26 @@
             applyFilters();
         }
 
+        let currentRandomGame = null;
+
         function selectRandomGame() {
+            if (currentRandomGame) {
+                showRandomSelection(currentRandomGame);
+                return;
+            }
+
             const availableGames = games.filter(game => !game.completed && !game.inProgress);
             if (availableGames.length === 0) {
                 alert('Нет доступных игр для выбора');
                 return;
             }
             const randomGame = availableGames[Math.floor(Math.random() * availableGames.length)];
-            const randomCell = document.querySelector(`.cell[title="${randomGame.name}"]`);
+            currentRandomGame = randomGame;
+            showRandomSelection(randomGame);
+        }
+
+        function showRandomSelection(game) {
+            const randomCell = document.querySelector(`.cell[data-game-id="${game.id}"]`);
             
             document.querySelectorAll('.cell').forEach(cell => {
                 cell.style.display = 'none';
@@ -2284,13 +2305,41 @@
             
             const img = randomCell.querySelector('img');
             randomSelected.innerHTML = `
-                <img src="${img.src}" alt="${randomGame.name}">
-                <p>${randomGame.name} (${randomGame.year})</p>
+                <img src="${img.src}" alt="${game.name}">
+                <p>${game.name} (${game.year})</p>
             `;
             randomSelectedContainer.style.display = 'flex';
             
+            const isLastOfUs2 = game.name.toLowerCase().includes('the last of us part ii');
+            
+            document.getElementById('dontWantButton').textContent = isLastOfUs2 ? 'Да ну нафиг' : 'Не хочу';
+            document.getElementById('wantToPlayButton').textContent = isLastOfUs2 ? 'Ну, с богом' : 'Хочу пройти!';
+            document.getElementById('anotherRandomButton').textContent = isLastOfUs2 ? 'Давай может другую, а?' : 'Давай другую';
+            
             document.getElementById('topButtons').style.display = 'flex';
             document.getElementById('anotherRandomButton').style.display = 'block';
+            
+            document.getElementById('wantToPlayButton').onclick = () => {
+                game.inProgress = true;
+                randomCell.classList.add('in-progress');
+                if (randomCell.parentElement === grid) {
+                    grid.removeChild(randomCell);
+                }
+                inProgressRow.appendChild(randomCell);
+                hideRandomSelection();
+                updateInProgressRow();
+                saveInProgressGames();
+            };
+            
+            document.getElementById('dontWantButton').onclick = () => {
+                currentRandomGame = null;
+                hideRandomSelection();
+            };
+            
+            document.getElementById('anotherRandomButton').onclick = () => {
+                currentRandomGame = null;
+                selectRandomGame();
+            };
             
             setTimeout(() => {
                 const selectedImg = randomSelected.querySelector('img');
@@ -2311,26 +2360,6 @@
                     selectedImg.style.height = `${selectedImg.naturalHeight * 1.5}px`;
                 }
             }, 0);
-            
-            document.getElementById('wantToPlayButton').onclick = () => {
-                 randomGame.inProgress = true;
-                 randomCell.classList.add('in-progress');
-                 if (randomCell.parentElement === grid) {
-                     grid.removeChild(randomCell);
-                 }
-                 inProgressRow.appendChild(randomCell);
-                 hideRandomSelection();
-                 updateInProgressRow();
-                 saveInProgressGames();
-             };
-            
-            document.getElementById('dontWantButton').onclick = () => {
-                hideRandomSelection();
-            };
-            
-            document.getElementById('anotherRandomButton').onclick = () => {
-                selectRandomGame();
-            };
         }
 
         function hideRandomSelection() {
@@ -2340,6 +2369,7 @@
             });
             document.getElementById('topButtons').style.display = 'none';
             document.getElementById('anotherRandomButton').style.display = 'none';
+            applyFilters();
         }
 
         function updateSaturation() {
@@ -2455,7 +2485,10 @@
         togglePreviewBtn.addEventListener('click', togglePreview);
         inProgressButton.addEventListener('click', toggleInProgressMode);
         hideCompletedButton.addEventListener('click', toggleHideCompleted);
-        resetButton.addEventListener('click', resetProgress);
+        resetButton.addEventListener('click', () => {
+            resetProgress();
+            hideRandomSelection();
+        });
         searchInput.addEventListener('input', searchGames);
         searchInput.addEventListener('input', () => searchGames(false));
         searchInput.addEventListener('keypress', handleSearchKeyPress);
@@ -2505,6 +2538,22 @@
             console.log("Кнопка сброса фильтов в шапке нажата");
             resetFilters();
         });
+
+        document.addEventListener('click', (event) => {
+            if (!randomSelectedContainer.contains(event.target) && event.target !== randomButton) {
+                hideRandomSelection();
+            }
+        });
+
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                updateGridSize();
+                updateInProgressRow();
+            }, 100);
+        });
+
+        // В конце скрипта, после всех инициализаций
+        window.dispatchEvent(new Event('resize'));
     </script>
 </body>
 </html>
