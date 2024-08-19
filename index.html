@@ -200,32 +200,9 @@
         }
 
         .cell.in-progress::before {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: 
-                linear-gradient(90deg, orange, red), 
-                linear-gradient(90deg, orange, red), 
-                linear-gradient(0deg, orange, red), 
-                linear-gradient(0deg, orange, red);
-            background-repeat: repeat-x, repeat-x, repeat-y, repeat-y;
-            background-size: 8px 3px, 8px 3px, 3px 8px, 3px 8px;
-            animation: running-contour 1s linear infinite;
-            pointer-events: none; 
-            z-index: 1; 
+            content: none;
         }
 
-        @keyframes running-contour {
-            from {
-                background-position: 0 0, 8px 100%, 0 8px, 100% 0;
-            }
-            to {
-                background-position: 8px 0, 0 100%, 0 0, 100% 8px;
-            }
-        }
         .cell.search-dimmed {
             filter: brightness(30%);
         }
@@ -383,18 +360,21 @@
         }
 
         #inProgressRow {
-            position: static;
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(calc(var(--cell-size) * 0.65), 1fr));
-            gap: 3px;
-            padding: 3px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            padding: 5px;
             background-color: #333;
             border-bottom: 1px solid #555;
+            justify-content: flex-start;
+            align-items: flex-start;
         }
 
         #inProgressRow .cell {
-            width: calc(var(--cell-size) * 0.65);
-            height: calc(var(--cell-size) * 0.65 * 1.33);
+            flex: 0 0 auto;
+            width: calc(var(--cell-size) * 1.2);
+            height: calc(var(--cell-size) * 1.2 * 1.33);
+            border: none;
         }
 
         #mainContent {
@@ -1847,7 +1827,7 @@
             } else {
                 if (cell.parentElement === inProgressRow) {
                     inProgressRow.removeChild(cell);
-                    grid.appendChild(cell);
+                    insertCellInOrder(cell);
                 }
             }
             
@@ -1862,6 +1842,18 @@
             updateCounter();
             updateInProgressRow();
             applyFilters();
+        }
+
+        function insertCellInOrder(cell) {
+            const gameId = parseInt(cell.dataset.gameId);
+            const cells = Array.from(grid.children);
+            const insertIndex = cells.findIndex(c => parseInt(c.dataset.gameId) > gameId);
+            
+            if (insertIndex === -1) {
+                grid.appendChild(cell);
+            } else {
+                grid.insertBefore(cell, cells[insertIndex]);
+            }
         }
 
         function saveCompletedGames() {
@@ -2032,8 +2024,8 @@
         function updateCellSize(cell, isInProgress) {
             const size = sizeSlider.value;
             if (isInProgress) {
-                cell.style.width = `${size * 0.65}px`;
-                cell.style.height = `${size * 0.65 * 1.33}px`;
+                cell.style.width = `${size * 1.2}px`;
+                cell.style.height = `${size * 1.2 * 1.33}px`;
             } else {
                 cell.style.width = `${size}px`;
                 cell.style.height = `${size * 1.33}px`;
@@ -2101,11 +2093,11 @@
                 20: 'Похоже ты знаешь ка нажимать на кнопки',
                 50: 'Уже 50? Мама будет гордитьс. Наверно.',
                 75: '75! А ты нелох',
-                100: '100! Маленький GAMER',
+                100: '100! Малекий GAMER',
                 125: 'Постоянный гость в мире пикселей. Тебя там уже знают по имени?',
                 150: '150! Воу воу, полегче',
-                175: 'Говорят, на этом ��овне уже становятся стримерами. Страшно...',
-                200: 'Теперь ты можешь официально игнорировать любые социальные пригаеия.',
+                175: 'Говорят, на этом овне уже становятся стримерами. Страшно...',
+                200: 'Теперь т�� можешь официально игнорировать любые социальные пригаеия.',
                 300: 'GAMER',
                 350: 'Чем пахнет? А, это тв социальная жизнь леет.',
                 400: 'Игры пройдены, но где твоя личная жизнь?',
@@ -2243,7 +2235,7 @@
             });
             
             if (inProgressGames.length > 0) {
-                inProgressRow.style.display = 'grid';
+                inProgressRow.style.display = 'flex';
             } else {
                 inProgressRow.style.display = 'none';
             }
