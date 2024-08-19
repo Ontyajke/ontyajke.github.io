@@ -636,6 +636,107 @@
             background: linear-gradient(to bottom right, transparent calc(50% - 1px), #fff, transparent calc(50% + 1px));
             pointer-events: none;
         }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.7);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background-color: #2a2a2a;
+            margin: 10% auto;
+            padding: 30px;
+            border: none;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            color: white;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: #fff;
+        }
+
+        #addGameForm {
+            display: flex;
+            flex-direction: column;
+        }
+
+        #addGameForm input {
+            margin-bottom: 15px;
+            padding: 10px;
+            background-color: #3a3a3a;
+            border: 1px solid #555;
+            border-radius: 5px;
+            color: white;
+            font-size: 16px;
+        }
+
+        #addGameForm input:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+
+        #addGameForm label {
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .form-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        #addGameForm button,
+        #cancelAddGame {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s, transform 0.1s;
+        }
+
+        #addGameForm button {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        #cancelAddGame {
+            background-color: #f44336;
+            color: white;
+        }
+
+        #addGameForm button:hover,
+        #cancelAddGame:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        #addGameForm button:active,
+        #cancelAddGame:active {
+            transform: translateY(0);
+        }
     </style>
 </head>
 <body>
@@ -675,7 +776,9 @@
     <div class="game-title" id="gameTitle"></div>
     <div id="milestone"></div>
     <div id="filtersPanel">
-        <h3>Фильтры</h3>
+        <h3>
+            <button id="addGameButton">Добавить игру</button>
+        </h3>
         <label for="yearSlider">Год выпуска: <span id="yearValue"></span></label>
         <div class="double-slider">
             <input type="range" id="yearSliderMin" min="1980" max="2023" value="1980">
@@ -703,6 +806,34 @@
             <button id="wantToPlayButton">Хочу пройти!</button>
         </div>
         <button id="anotherRandomButton">давай другую</button>
+    </div>
+
+    <div id="addGameModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Добавить новую игру</h2>
+            <form id="addGameForm">
+                <label for="gameName">Название игры:</label>
+                <input type="text" id="gameName" required>
+                
+                <label for="gameYear">Год выпуска:</label>
+                <input type="number" id="gameYear" min="1950" max="2099">
+                
+                <label for="gamePlatforms">Платформы (через запятую):</label>
+                <input type="text" id="gamePlatforms">
+                
+                <label for="gameGenres">Жанры (через запятую):</label>
+                <input type="text" id="gameGenres">
+                
+                <label for="gameImageUrl">URL изображения:</label>
+                <input type="url" id="gameImageUrl">
+                
+                <div class="form-buttons">
+                    <button type="button" id="cancelAddGame">Отмена</button>
+                    <button type="submit">Добавить</button>
+                </div>
+            </form>
+        </div>
     </div>
 
     <script>
@@ -2053,6 +2184,24 @@
         function toggleInProgressMode() {
             inProgressMode = !inProgressMode;
             inProgressButton.classList.toggle('active', inProgressMode);
+            
+            // Сохраняем текущее состояние поиска
+            const currentSearchValue = searchInput.value.toLowerCase().trim();
+            
+            updateAllCells();
+            updateInProgressRow();
+            
+            // Применяем поиск снова, если есть текущий запрос
+            if (currentSearchValue) {
+                document.querySelectorAll('.cell').forEach(cell => {
+                    const gameName = cell.title.toLowerCase();
+                    if (gameName.includes(currentSearchValue)) {
+                        cell.style.display = '';
+                    } else {
+                        cell.style.display = 'none';
+                    }
+                });
+            }
         }
 
         function toggleHideCompleted() {
@@ -2094,6 +2243,10 @@
 
                 updateCounter();
                 updateProgressBar();
+                
+                // Сброс поиска
+                searchInput.value = '';
+                searchGames();
             }
         }
 
@@ -2103,13 +2256,13 @@
                 50: 'Уже 50? Мама будет гордитьс. Наверно.',
                 75: '75! А ты нелох',
                 100: '100! Малекий GAMER',
-                125: 'Постоянный гость в мире пикселей. Тебя там уже знают по имени?',
+                125: 'Постонный гость в мире пикселей. Тебя там уже знают по имени?',
                 150: '150! Воу воу, полегче',
                 175: 'Говорят, на этом овне уже становятся стримерами. Страшно...',
                 200: 'Теперь т можешь официально игнорировать любые социальные пригаеия.',
                 300: 'GAMER',
                 350: 'Чем пахнет? А, это тв социальная жизнь леет.',
-                400: 'Игры пройдены, но где твоя личная жизнь?',
+                400: 'Игры пойдены, но где твоя личня жизнь?',
                 450: 'Врачи предупежаю: избыток пикселе вреен.',
                 500: 'Ты теперь — часть мебели. Поздравляе!',
                 550: 'Твой экран устал. Дай ему выходной.',
@@ -2137,12 +2290,16 @@
             const searchTerm = searchInput.value.toLowerCase().trim();
             document.querySelectorAll('.cell').forEach(cell => {
                 const gameName = cell.title.toLowerCase();
-                if (searchTerm === '' || gameName.includes(searchTerm)) {
+                const gameId = cell.getAttribute('data-game-id');
+                const game = games.find(g => g.id.toString() === gameId);
+                
+                if (game && shouldShowGame(game) && (searchTerm === '' || gameName.includes(searchTerm))) {
                     cell.style.display = '';
                 } else {
                     cell.style.display = 'none';
                 }
             });
+            updateInProgressRow();
         }
 
 
@@ -2264,10 +2421,13 @@
         }
 
         function applyFilters() {
+            const currentSearchValue = searchInput.value.toLowerCase().trim();
             games.forEach(game => {
                 const cell = document.querySelector(`.cell[title="${game.name}"]`);
                 if (cell) {
-                    cell.style.display = shouldShowGame(game) ? '' : 'none';
+                    const shouldShow = shouldShowGame(game) && 
+                                       (currentSearchValue === '' || game.name.toLowerCase().includes(currentSearchValue));
+                    cell.style.display = shouldShow ? '' : 'none';
                 }
             });
             updateInProgressRow();
@@ -2281,11 +2441,6 @@
         let currentRandomGame = null;
 
         function selectRandomGame() {
-            if (currentRandomGame) {
-                showRandomSelection(currentRandomGame);
-                return;
-            }
-
             const availableGames = games.filter(game => !game.completed && !game.inProgress);
             if (availableGames.length === 0) {
                 alert('Нет доступных игр для выбора');
@@ -2313,7 +2468,7 @@
             const isLastOfUs2 = game.name.toLowerCase().includes('the last of us part ii');
             
             document.getElementById('dontWantButton').textContent = isLastOfUs2 ? 'Да ну нафиг' : 'Не хочу';
-            document.getElementById('wantToPlayButton').textContent = isLastOfUs2 ? 'Ну, с богом' : 'Хочу пройти!';
+            document.getElementById('wantToPlayButton').textContent = isLastOfUs2 ? 'Ну, с огом' : 'Хочу пройти!';
             document.getElementById('anotherRandomButton').textContent = isLastOfUs2 ? 'Давай может другую, а?' : 'Давай другую';
             
             document.getElementById('topButtons').style.display = 'flex';
@@ -2329,6 +2484,7 @@
                 hideRandomSelection();
                 updateInProgressRow();
                 saveInProgressGames();
+                currentRandomGame = null; // Сбрасываем текущую случайную игру
             };
             
             document.getElementById('dontWantButton').onclick = () => {
@@ -2436,6 +2592,10 @@
             
             const currentSaturation = saturationSlider.value;
             
+            // Сброс поиска
+            searchInput.value = '';
+            searchGames();
+            
             applyFilters();
             
             saturationSlider.value = currentSaturation;
@@ -2493,7 +2653,8 @@
         searchInput.addEventListener('input', () => searchGames(false));
         searchInput.addEventListener('keypress', handleSearchKeyPress);
         clearSearchButton.addEventListener('click', clearSearch);
-        filtersButton.addEventListener('click', () => {
+        filtersButton.addEventListener('click', (event) => {
+            event.stopPropagation();
             filtersPanel.style.display = filtersPanel.style.display === 'none' ? 'block' : 'none';
         });
         resetFiltersButton.addEventListener('click', resetFilters);
