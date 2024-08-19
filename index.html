@@ -760,7 +760,7 @@
         let selectedPlatforms = JSON.parse(localStorage.getItem('selectedPlatforms')) || [];
         let selectedGenres = JSON.parse(localStorage.getItem('selectedGenres')) || [];
         const gamesList = [
-            {"number":1,"title":"the-legend-of-zelda-breath-of-the-wild","image_url":"https://images.igdb.com/igdb/image/upload/t_cover_big/co3p2d.jpg","year":2017,"genres":["Action","Adventure","Open world","Puzzle","Role-playing (RPG)","Sandbox","Survival"],"platforms":["Nintendo Switch","Nintendo Wii U"]},
+        {"number":1,"title":"the-legend-of-zelda-breath-of-the-wild","image_url":"https://images.igdb.com/igdb/image/upload/t_cover_big/co3p2d.jpg","year":2017,"genres":["Action","Adventure","Open world","Puzzle","Role-playing (RPG)","Sandbox","Survival"],"platforms":["Nintendo Switch","Nintendo Wii U"]},
 {"number":2,"title":"the-last-of-us","image_url":"https://images.igdb.com/igdb/image/upload/t_cover_big/co1r7f.jpg","year":2013,"genres":["Action","Adventure","Horror","Shooter","Stealth","Survival"],"platforms":["PlayStation 3","PlayStation 4"]},
 {"number":3,"title":"tetris--4","image_url":"https://images.igdb.com/igdb/image/upload/t_cover_big/co6n9j.jpg","year":1985,"genres":["Arcade","Puzzle"],"platforms":["DOS","Electronika 60","Game Boy","Nintendo Entertainment System"]},
 {"number":4,"title":"half-life-2","image_url":"https://images.igdb.com/igdb/image/upload/t_cover_big/co1nmw.jpg","year":2004,"genres":["Action","Horror","Shooter"],"platforms":["Windows PC"]},
@@ -1801,31 +1801,25 @@
             
             if (inProgressMode) {
                 if (!game.inProgress && !game.completed) {
-                    // Если игра не в процессе и не пройдена, переводим ее в "в процессе"
                     game.inProgress = true;
                     game.completed = false;
                 } else if (game.inProgress) {
-                    // Если игра в процессе, переводим ее в "не пройдено"
                     game.inProgress = false;
                     game.completed = false;
                 } else if (game.completed) {
-                    // Если игра пройдена, переводим ее в "в процессе"
                     game.inProgress = true;
                     game.completed = false;
                 }
             } else {
                 if (!game.completed && !game.inProgress) {
-                    // Если игра не пройдена и не в процессе, отмечаем как "пройдено"
                     game.completed = true;
                     game.inProgress = false;
                     completedGames++;
                 } else if (game.completed) {
-                    // Если игра пройдена, возвращаем в "не пройдено"
                     game.completed = false;
                     game.inProgress = false;
                     completedGames--;
                 } else if (game.inProgress) {
-                    // Если игра в процессе, переводим в "пройдено"
                     game.completed = true;
                     game.inProgress = false;
                     completedGames++;
@@ -1945,7 +1939,7 @@
                 img.style.height = `${height}px`;
                 
                 const previewRect = preview.getBoundingClientRect();
-                const margin = window.innerWidth * 0.05; // 5% от ширин экрана
+                const margin = window.innerWidth * 0.05;
                 
                 let currentSide = preview.style.right === 'auto' ? 'left' : 'right';
                 
@@ -2308,31 +2302,35 @@
             
             setTimeout(() => {
                 const selectedImg = randomSelected.querySelector('img');
-                const containerWidth = (randomSelectedContainer.clientWidth - 40) * 1.5; // Увеличиваем на 50%
-                const containerHeight = (randomSelectedContainer.clientHeight - 200) * 1.5; // Увеличиваем на 50%
+                const containerWidth = (randomSelectedContainer.clientWidth - 40) * 1.5;
+                const containerHeight = (randomSelectedContainer.clientHeight - 200) * 1.5;
                 const imgAspectRatio = selectedImg.naturalWidth / selectedImg.naturalHeight;
                 
                 if (selectedImg.naturalWidth > containerWidth || selectedImg.naturalHeight > containerHeight) {
                     if (containerWidth / imgAspectRatio <= containerHeight) {
-                        selectedImg.style.width = '150%'; // Увеличиваем на 50%
+                        selectedImg.style.width = '150%';
                         selectedImg.style.height = 'auto';
                     } else {
                         selectedImg.style.width = 'auto';
                         selectedImg.style.height = `${containerHeight}px`;
                     }
                 } else {
-                    selectedImg.style.width = `${selectedImg.naturalWidth * 1.5}px`; // Увеличиваем на 50%
-                    selectedImg.style.height = `${selectedImg.naturalHeight * 1.5}px`; // Увеличиваем на 50%
+                    selectedImg.style.width = `${selectedImg.naturalWidth * 1.5}px`;
+                    selectedImg.style.height = `${selectedImg.naturalHeight * 1.5}px`;
                 }
             }, 0);
             
             document.getElementById('wantToPlayButton').onclick = () => {
-                randomGame.inProgress = true;
-                randomCell.classList.add('in-progress');
-                hideRandomSelection();
-                updateInProgressRow();
-                saveInProgressGames();
-            };
+                 randomGame.inProgress = true;
+                 randomCell.classList.add('in-progress');
+                 if (randomCell.parentElement === grid) {
+                     grid.removeChild(randomCell);
+                 }
+                 inProgressRow.appendChild(randomCell);
+                 hideRandomSelection();
+                 updateInProgressRow();
+                 saveInProgressGames();
+             };
             
             document.getElementById('dontWantButton').onclick = () => {
                 hideRandomSelection();
@@ -2391,7 +2389,7 @@
         }
 
         function resetFilters() {
-            console.log("Сброс фильтров начат"); // Отладочное сообщение
+            console.log("Сброс фильтров начат");
 
             yearSliderMin.value = yearSliderMin.min;
             yearSliderMax.value = yearSliderMax.max;
@@ -2426,7 +2424,7 @@
 
             filtersPanel.style.display = 'none';
 
-            console.log("Сброс фильтров завершен"); // Отладочное сообщение
+            console.log("Сброс фильтров завершен");
         }
 
         function showAuthorCredit() {
@@ -2512,7 +2510,7 @@
 
         const resetFiltersButtonHeader = document.getElementById('resetFiltersButtonHeader');
         resetFiltersButtonHeader.addEventListener('click', function() {
-            console.log("Кнопка сброса фильтов в шапке нажата"); // Отладочное сообщение
+            console.log("Кнопка сброса фильтов в шапке нажата");
             resetFilters();
         });
     </script>
