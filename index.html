@@ -29,62 +29,72 @@
             display: flex;
             align-items: center;
         }
-        #togglePreview, #resetButton, #inProgressButton, #hideCompletedButton, #filtersButton, #clearSearchButton, #resetFiltersButton {
-            background-color: #4CAF50;
+        #togglePreview, #resetButton, #inProgressButton, #hideCompletedButton, #filtersButton, #clearSearchButton, #resetFiltersButton, #randomButton {
             border: none;
             color: white;
-            padding: 3px 8px; 
+            padding: 5px 10px;
             text-align: center;
             text-decoration: none;
             display: inline-block;
             font-size: 14px;
-            margin: 0 5px; 
+            margin: 0 5px;
             cursor: pointer;
-            transition: background-color 0.3s;
-            z-index: 1;
-            height: 24px; 
+            transition: all 0.3s ease;
+            border-radius: 5px;
+            font-weight: bold;
+            text-transform: uppercase;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        #togglePreview {
+            background-color: #4CAF50;
         }
         #togglePreview.disabled {
             background-color: #9E9E9E;
+            cursor: not-allowed;
         }
         #resetButton {
             background-color: #f44336;
         }
         #inProgressButton {
             background-color: #FF9800;
+            transition: all 0.3s ease;
         }
         #inProgressButton.active {
             background-color: #FFA726;
-            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5), 0 0 15px rgba(255, 152, 0, 0.7);
+            transform: translateY(2px);
+        }
+        #hideCompletedButton {
+            background-color: #2196F3;
         }
         #hideCompletedButton.active {
-            background-color: #f44336;
+            background-color: #1976D2;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5), 0 0 15px rgba(33, 150, 243, 0.7);
+            transform: translateY(2px);
         }
         #filtersButton {
-            background-color: #D3D3D3;
-            color: #000;
-        }
-        #inProgressFilter {
-            background-color: #FF9800;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            margin-top: 10px;
-            cursor: pointer;
-        }
-        #inProgressFilter.active {
-            background-color: #FFA726;
-            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
+            background-color: #4CAF50;
         }
         #clearSearchButton {
             background-color: #f44336;
-            color: white;
             width: 24px;
             height: 24px;
             padding: 0;
             margin-left: 5px;
             font-size: 18px;
             line-height: 24px;
+        }
+        #randomButton {
+            background-color: #2a2a2a;
+        }
+        #togglePreview:hover, #resetButton:hover, #inProgressButton:hover, #hideCompletedButton:hover, #filtersButton:hover, #clearSearchButton:hover, #resetFiltersButton:hover, #randomButton:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        #togglePreview:active, #resetButton:active, #inProgressButton:active, #hideCompletedButton:active, #filtersButton:active, #clearSearchButton:active, #resetFiltersButton:active, #randomButton:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
         #progressBarContainer {
             position: absolute;
@@ -102,7 +112,7 @@
             width: 100%;
             height: 100%;
             background: linear-gradient(to right, 
-                black,
+                black, 
                 violet, 
                 blue, 
                 green, 
@@ -136,7 +146,7 @@
         #counter {
             color: white;
             font-weight: bold;
-            font-size: 14px; 
+            font-size: 18px; 
         }
         #grid {
             display: grid;
@@ -149,11 +159,16 @@
             aspect-ratio: 0.75;
             cursor: pointer;
             transition: filter 0.3s, box-shadow 0.3s;
+            overflow: hidden;
         }
         .cell img {
             width: 100%;
             height: 100%;
             object-fit: cover;
+            transition: filter 0.3s;
+        }
+        .cell.completed img {
+            filter: brightness(85%);
         }
         .cell.completed::before {
             content: '';
@@ -167,6 +182,7 @@
                 linear-gradient(to bottom right, transparent calc(50% - 1px), red calc(50% - 1px), red calc(50% + 1px), transparent calc(50% + 1px));
             z-index: 2;
             pointer-events: none;
+            filter: saturate(100%) !important;
         }
         .cell.completed::after {
             content: '';
@@ -175,24 +191,51 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background-color: rgba(0, 0, 0, 0.25);
-            z-index: 1;
+            background: linear-gradient(to bottom right, transparent calc(50% - 1px), #fff, transparent calc(50% + 1px));
+            pointer-events: none;
         }
         .cell.in-progress {
-            box-shadow: 0 0 0 2px orange;
+            position: relative; 
+            background: none;
+        }
+
+        .cell.in-progress::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(90deg, orange, red), 
+                linear-gradient(90deg, orange, red), 
+                linear-gradient(0deg, orange, red), 
+                linear-gradient(0deg, orange, red);
+            background-repeat: repeat-x, repeat-x, repeat-y, repeat-y;
+            background-size: 8px 3px, 8px 3px, 3px 8px, 3px 8px;
+            animation: running-contour 1s linear infinite;
+            pointer-events: none; 
+            z-index: 1; 
+        }
+
+        @keyframes running-contour {
+            from {
+                background-position: 0 0, 8px 100%, 0 8px, 100% 0;
+            }
+            to {
+                background-position: 8px 0, 0 100%, 0 0, 100% 8px;
+            }
         }
         .cell.search-dimmed {
             filter: brightness(30%);
         }
         .cell.search-highlight {
-            animation: highlight 2s linear infinite;
+            animation: highlight 5s ease-in-out infinite;
         }
         @keyframes highlight {
-            0% { box-shadow: 0 0 0 2px #ff0000; }
-            25% { box-shadow: 0 0 0 2px #00ff00; }
-            50% { box-shadow: 0 0 0 2px #0000ff; }
-            75% { box-shadow: 0 0 0 2px #ffff00; }
-            100% { box-shadow: 0 0 0 2px #ff0000; }
+            0% { box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.5); }
+            50% { box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.8); }
+            100% { box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.5); }
         }
         .cell.hidden {
             display: none;
@@ -222,8 +265,8 @@
             align-items: center;
         }
         .preview img {
-            max-width: 54vw;
-            max-height: 54vh;
+            max-width: 65vw;
+            max-height: 65vh;
             object-fit: contain;
         }
         .preview p {
@@ -235,11 +278,13 @@
             position: fixed;
             background-color: rgba(0, 0, 0, 0.7);
             color: white;
-            padding: 5px;
-            border-radius: 2px;
+            padding: 5px 10px;
+            border-radius: 4px;
             z-index: 1000;
             pointer-events: none;
-            font-size: 14px;
+            font-size: 16px;
+            white-space: nowrap;
+            transform: translateY(-50%);
         }
         #milestone {
             position: fixed;
@@ -280,40 +325,330 @@
             width: 100%;
             height: 40px;
         }
-        .double-slider input {
-            position: absolute;
+
+        .double-slider input[type="range"] {
+            -webkit-appearance: none;
             width: 100%;
-            height: 5px;
+            height: 4px;
             background: none;
             pointer-events: none;
-            -webkit-appearance: none;
-            -moz-appearance: none;
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 2;
+            appearance: none;
         }
-        .double-slider input::-webkit-slider-thumb {
-            height: 20px;
-            width: 20px;
+
+        .double-slider input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 16px;
+            height: 16px;
             border-radius: 50%;
             background: #4CAF50;
+            cursor: pointer;
             pointer-events: auto;
-            -webkit-appearance: none;
+            margin-top: -6px;
+            box-shadow: 0 0 0 3px #fff, 0 0 0 6px rgba(76, 175, 80, 0.1);
+            z-index: 3;
         }
-        .double-slider input::-moz-range-thumb {
-            height: 20px;
-            width: 20px;
+
+        .double-slider input[type="range"]::-moz-range-thumb {
+            width: 16px;
+            height: 16px;
             border-radius: 50%;
             background: #4CAF50;
+            cursor: pointer;
             pointer-events: auto;
-            -moz-appearance: none;
+            box-shadow: 0 0 0 3px #fff, 0 0 0 6px rgba(76, 175, 80, 0.1);
+            border: none;
+            z-index: 3;
         }
+
         .slider-track {
             width: 100%;
-            height: 5px;
-            position: absolute;
-            margin: auto;
-            top: 0;
-            bottom: 0;
-            border-radius: 5px;
+            height: 4px;
             background: #ddd;
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            border-radius: 2px;
+            z-index: 1;
+        }
+
+        #yearValue {
+            text-align: center;
+            margin-top: 10px;
+            font-weight: bold;
+            color: inherit;
+        }
+
+        #inProgressRow {
+            position: static;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(calc(var(--cell-size) * 0.65), 1fr));
+            gap: 3px;
+            padding: 3px;
+            background-color: #333;
+            border-bottom: 1px solid #555;
+        }
+
+        #inProgressRow .cell {
+            width: calc(var(--cell-size) * 0.65);
+            height: calc(var(--cell-size) * 0.65 * 1.33);
+        }
+
+        #mainContent {
+            padding-top: 1px;
+        }
+
+        .cell.completed img {
+            filter: brightness(85%);
+        }
+
+        #filterButtons {
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        #completedFilter, #resetFiltersButton {
+            font-size: 14px;
+            padding: 5px 10px;
+            margin: 0 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            height: 30px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        #completedFilter {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        #resetFiltersButton {
+            background-color: #f44336;
+            color: white;
+        }
+
+        #saturationContainer {
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        #saturationSlider {
+            width: 100%;
+            margin-top: 5px;
+        }
+
+        #randomButton {
+            background-color: #2a2a2a;
+            color: white;
+            border: none;
+            padding: 3px 8px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+            margin: 0 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+            z-index: 1;
+            height: 24px;
+        }
+
+        #randomButton:hover {
+            background: linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000);
+            background-size: 400% 400%;
+            animation: rainbow 5s ease infinite;
+        }
+
+        @keyframes rainbow { 
+           0% { background-position: 0% 50%; }
+           50% { background-position: 100% 50%; }
+           100% { background-position: 0% 50%; }
+        }
+
+        .random-selected {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
+            width: 65vw;
+            height: 65vh;
+        }
+
+        .random-selected img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        #authorCredit {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            font-size: 24px;
+            display: none;
+            z-index: 1010;
+        }
+
+        #randomSelectedContainer {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #333;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            z-index: 1000;
+            max-width: 95vw;
+            max-height: 95vh;
+            overflow: auto;
+        }
+
+        #randomSelected {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #randomSelected img {
+            max-width: 150%;
+            max-height: calc(95vh - 200px);
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            margin-bottom: 10px;
+        }
+
+        #randomSelected p {
+            margin: 10px 0;
+            font-size: 18px;
+            word-wrap: break-word;
+            max-width: 100%;
+        }
+
+        #topButtons {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        #anotherRandomButton {
+            display: block;
+            margin: 20px auto 0;
+        }
+
+        #dontWantButton, #wantToPlayButton, #anotherRandomButton {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            text-transform: uppercase;
+            transition: background-color 0.3s, transform 0.1s;
+        }
+
+        #dontWantButton, #wantToPlayButton {
+            flex: 1;
+            margin: 0 10px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        #dontWantButton {
+            background-color: #f44336;
+            color: white;
+        }
+
+        #wantToPlayButton {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        #anotherRandomButton {
+            background-color: #FF9800;
+            color: white;
+            width: calc(100% - 20px);
+        }
+
+        #dontWantButton:hover, #wantToPlayButton:hover, #anotherRandomButton:hover {
+            opacity: 0.9;
+        }
+
+        #dontWantButton:active, #wantToPlayButton:active, #anotherRandomButton:active {
+            transform: scale(0.98);
+        }
+
+        .preview p {
+            word-wrap: break-word;
+            max-width: 100%;
+        }
+
+        #mainContent {
+            padding-top: 40px;
+        }
+
+        #grid {
+            padding-top: 5px;
+        }
+
+        .square-button {
+            width: 24px;
+            height: 24px;
+            padding: 0;
+            margin-left: 5px;
+            font-size: 18px;
+            line-height: 24px;
+            text-align: center;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        #clearSearchButton, #resetFiltersButtonHeader {
+            background-color: #f44336;
+            color: white;
+        }
+
+        #clearSearchButton:hover, #resetFiltersButtonHeader:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        #clearSearchButton:active, #resetFiltersButtonHeader:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .cell.completed::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to bottom right, transparent calc(50% - 1px), #fff, transparent calc(50% + 1px));
+            pointer-events: none;
         }
     </style>
 </head>
@@ -328,17 +663,22 @@
             <input type="text" id="searchInput" placeholder="Поиск игры...">
             <button id="clearSearchButton">×</button>
             <button id="filtersButton">Фильтры</button>
+            <button id="resetFiltersButtonHeader" class="square-button">×</button>
         </div>
         <div id="counterContainer">
-            <div id="counter">Пройдено: 0 из 0</div>
+            <div id="counter">ройдено: 0 из 0</div>
         </div>
         <div id="rightGroup">
+            <button id="randomButton">Random</button>
             <button id="inProgressButton">В процессе</button>
             <button id="hideCompletedButton">Скрыть пройденные</button>
             <button id="resetButton">Сброс</button>
         </div>
     </div>
-    <div id="grid"></div>
+    <div id="mainContent">
+        <div id="inProgressRow"></div>
+        <div id="grid"></div>
+    </div>
     <input type="range" id="sizeSlider" min="25" max="250" value="50" step="1">
     <div class="preview" id="preview">
         <div class="preview-content">
@@ -360,11 +700,27 @@
         <div id="platformsList"></div>
         <h4>Жанры:</h4>
         <div id="genresList"></div>
-        <button id="inProgressFilter">В процессе</button>
-        <button id="resetFiltersButton">Сбросить фильтры</button>
+        <div id="filterButtons">
+            <button id="completedFilter">Только пройденные</button>
+            <button id="resetFiltersButton">Сбросить фильтры</button>
+        </div>
+        <div id="saturationContainer">
+            <label for="saturationSlider">Насыщенность</label>
+            <input type="range" id="saturationSlider" min="0" max="100" value="100">
+        </div>
+    </div>
+    <div id="authorCredit">Made by Papz</div>
+    <div id="randomSelectedContainer">
+        <div id="randomSelected"></div>
+        <div id="topButtons">
+            <button id="dontWantButton">Не хочу</button>
+            <button id="wantToPlayButton">Хочу пройти!</button>
+        </div>
+        <button id="anotherRandomButton">давай другую</button>
     </div>
 
     <script>
+        const mainContent = document.getElementById('mainContent');
         const grid = document.getElementById('grid');
         const counter = document.getElementById('counter');
         const sizeSlider = document.getElementById('sizeSlider');
@@ -386,6 +742,12 @@
         const platformsList = document.getElementById('platformsList');
         const genresList = document.getElementById('genresList');
         const resetFiltersButton = document.getElementById('resetFiltersButton');
+        const completedFilter = document.getElementById('completedFilter');
+        const randomButton = document.getElementById('randomButton');
+        const saturationSlider = document.getElementById('saturationSlider');
+        const inProgressRow = document.getElementById('inProgressRow');
+        const authorCredit = document.getElementById('authorCredit');
+        let authorCreditTimeout;
         let completedGames = 0;
         let games = [];
         let previewTimeout;
@@ -397,7 +759,6 @@
         let savedMaxYear = localStorage.getItem('maxYear');
         let selectedPlatforms = JSON.parse(localStorage.getItem('selectedPlatforms')) || [];
         let selectedGenres = JSON.parse(localStorage.getItem('selectedGenres')) || [];
-
         const gamesList = [
             {"number":1,"title":"the-legend-of-zelda-breath-of-the-wild","image_url":"https://images.igdb.com/igdb/image/upload/t_cover_big/co3p2d.jpg","year":2017,"genres":["Action","Adventure","Open world","Puzzle","Role-playing (RPG)","Sandbox","Survival"],"platforms":["Nintendo Switch","Nintendo Wii U"]},
 {"number":2,"title":"the-last-of-us","image_url":"https://images.igdb.com/igdb/image/upload/t_cover_big/co1r7f.jpg","year":2013,"genres":["Action","Adventure","Horror","Shooter","Stealth","Survival"],"platforms":["PlayStation 3","PlayStation 4"]},
@@ -1437,26 +1798,76 @@
 
         function toggleCell(cell, gameId) {
             const game = games.find(g => g.id === gameId);
+            
             if (inProgressMode) {
-                game.inProgress = !game.inProgress;
-                cell.classList.toggle('in-progress');
-                saveInProgressGames();
-            } else {
-                game.completed = !game.completed;
-                cell.classList.toggle('completed');
-                if (game.completed) {
+                if (!game.inProgress && !game.completed) {
+                    // Если игра не в процессе и не пройдена, переводим ее в "в процессе"
+                    game.inProgress = true;
+                    game.completed = false;
+                } else if (game.inProgress) {
+                    // Если игра в процессе, переводим ее в "не пройдено"
                     game.inProgress = false;
-                    cell.classList.remove('in-progress');
+                    game.completed = false;
+                } else if (game.completed) {
+                    // Если игра пройдена, переводим ее в "в процессе"
+                    game.inProgress = true;
+                    game.completed = false;
                 }
-                completedGames += game.completed ? 1 : -1;
-                updateCounter();
-                saveCompletedGames();
-                saveInProgressGames();
-                if (hideCompleted) {
-                    cell.classList.toggle('hidden', game.completed);
+            } else {
+                if (!game.completed && !game.inProgress) {
+                    // Если игра не пройдена и не в процессе, отмечаем как "пройдено"
+                    game.completed = true;
+                    game.inProgress = false;
+                    completedGames++;
+                } else if (game.completed) {
+                    // Если игра пройдена, возвращаем в "не пройдено"
+                    game.completed = false;
+                    game.inProgress = false;
+                    completedGames--;
+                } else if (game.inProgress) {
+                    // Если игра в процессе, переводим в "пройдено"
+                    game.completed = true;
+                    game.inProgress = false;
+                    completedGames++;
                 }
             }
+            
+            cell.classList.remove('completed', 'in-progress');
+            if (game.completed) {
+                cell.classList.add('completed');
+            } else if (game.inProgress) {
+                cell.classList.add('in-progress');
+            }
+            
+            if (game.completed) {
+                cell.querySelector('img').style.filter = 'saturate(100%)';
+            } else {
+                updateSaturation();
+            }
+            
+            if (game.inProgress) {
+                if (cell.parentElement !== inProgressRow) {
+                    grid.removeChild(cell);
+                    inProgressRow.appendChild(cell);
+                }
+            } else {
+                if (cell.parentElement === inProgressRow) {
+                    inProgressRow.removeChild(cell);
+                    grid.appendChild(cell);
+                }
+            }
+            
+            saveCompletedGames();
+            saveInProgressGames();
+            
+            if (hideCompleted) {
+                cell.classList.toggle('hidden', game.completed);
+            }
+            
             hidePreviewAndTitle();
+            updateCounter();
+            updateInProgressRow();
+            applyFilters();
         }
 
         function saveCompletedGames() {
@@ -1482,6 +1893,7 @@
         function createCell(game) {
             const cell = document.createElement('div');
             cell.className = 'cell';
+            cell.dataset.gameId = game.id;
             if (game.completed) {
                 cell.classList.add('completed');
                 if (hideCompleted) {
@@ -1496,6 +1908,10 @@
             cell.addEventListener('click', () => toggleCell(cell, game.id));
             cell.addEventListener('mousemove', (e) => showPreviewOrTitle(e, game));
             cell.addEventListener('mouseleave', hidePreviewAndTitle);
+            
+            updateCellSize(cell, game.inProgress);
+            updateCellSaturation(cell, game.completed);
+            
             return cell;
         }
 
@@ -1517,8 +1933,8 @@
             img.src = game.imageUrl;
             img.onload = () => {
                 const aspectRatio = img.naturalWidth / img.naturalHeight;
-                const maxWidth = window.innerWidth * 0.54;
-                const maxHeight = window.innerHeight * 0.54;
+                const maxWidth = window.innerWidth * 0.65;
+                const maxHeight = window.innerHeight * 0.645;
                 let width = maxWidth;
                 let height = width / aspectRatio;
                 if (height > maxHeight) {
@@ -1529,19 +1945,45 @@
                 img.style.height = `${height}px`;
                 
                 const previewRect = preview.getBoundingClientRect();
-                let left = e.clientX > window.innerWidth / 2 ? 10 : window.innerWidth - previewRect.width - 10;
+                const margin = window.innerWidth * 0.05; // 5% от ширин экрана
                 
-                preview.style.left = `${left}px`;
+                let currentSide = preview.style.right === 'auto' ? 'left' : 'right';
+                
+                if (currentSide === 'left' && e.clientX < previewRect.right + margin) {
+                    currentSide = 'right';
+                } else if (currentSide === 'right' && e.clientX > previewRect.left - margin) {
+                    currentSide = 'left';
+                }
+                
+                if (currentSide === 'left') {
+                    preview.style.left = '5%';
+                    preview.style.right = 'auto';
+                } else {
+                    preview.style.left = 'auto';
+                    preview.style.right = '5%';
+                }
             };
-            preview.querySelector('p').textContent = game.name;
+            preview.querySelector('p').textContent = `${game.name} (${game.year})`;
             startPreviewTimeout();
         }
 
         function showGameTitle(e, game) {
             gameTitle.textContent = game.name;
             gameTitle.style.display = 'block';
-            gameTitle.style.left = `${e.clientX}px`;
-            gameTitle.style.top = `${e.clientY}px`;
+            
+            const titleRect = gameTitle.getBoundingClientRect();
+            const left = e.clientX - titleRect.width / 2;
+            const top = e.clientY - titleRect.height - 10;
+
+            gameTitle.style.left = `${Math.max(0, Math.min(left, window.innerWidth - titleRect.width))}px`;
+            gameTitle.style.top = `${Math.max(0, top)}px`;
+        }
+
+        function updateGameInfoPosition(e, game) {
+            if (previewEnabled) {
+            } else {
+                showGameTitle(e, game);
+            }
         }
 
         function startPreviewTimeout() {
@@ -1577,8 +2019,31 @@
 
         function updateGridSize() {
             const size = sizeSlider.value;
+            document.documentElement.style.setProperty('--cell-size', `${size}px`);
             grid.style.gridTemplateColumns = `repeat(auto-fill, minmax(${size}px, 1fr))`;
             localStorage.setItem('gridSize', size);
+            
+            updateAllCellSizes();
+            updateInProgressRow();
+        }
+
+        function updateAllCellSizes() {
+            const size = sizeSlider.value;
+            document.querySelectorAll('.cell').forEach(cell => {
+                const isInProgress = cell.classList.contains('in-progress');
+                updateCellSize(cell, isInProgress);
+            });
+        }
+
+        function updateCellSize(cell, isInProgress) {
+            const size = sizeSlider.value;
+            if (isInProgress) {
+                cell.style.width = `${size * 0.65}px`;
+                cell.style.height = `${size * 0.65 * 1.33}px`;
+            } else {
+                cell.style.width = `${size}px`;
+                cell.style.height = `${size * 1.33}px`;
+            }
         }
 
         function togglePreview() {
@@ -1611,37 +2076,53 @@
                     game.inProgress = false;
                 });
                 completedGames = 0;
-                updateCounter();
-                saveCompletedGames();
-                saveInProgressGames();
+                localStorage.removeItem('completedGames');
+                localStorage.removeItem('inProgressGames');
+                
                 document.querySelectorAll('.cell').forEach(cell => {
-                    cell.classList.remove('completed', 'in-progress', 'hidden');
+                    cell.classList.remove('completed', 'in-progress');
+                    const img = cell.querySelector('img');
+                    if (img) {
+                        img.style.filter = `saturate(${saturationSlider.value}%)`;
+                    }
                 });
+
+                updateInProgressRow();
+
+                grid.innerHTML = '';
+                games.forEach(game => {
+                    if (!game.inProgress) {
+                        const cell = createCell(game);
+                        grid.appendChild(cell);
+                    }
+                });
+
+                updateCounter();
+                updateProgressBar();
             }
         }
 
         function checkMilestone() {
             const milestones = {
-                1: 'Ну поехали',
-                20: 'Похоже ты знаешь как нажимать на кнопки',
-                50: 'Уже 50? Мама будет гордиться. Наверно.',
-                75: '75! А ты неплох',
+                20: 'Похоже ты знаешь ка нажимать на кнопки',
+                50: 'Уже 50? Мама будет гордитьс. Наверно.',
+                75: '75! А ты нелох',
                 100: '100! Маленький GAMER',
                 125: 'Постоянный гость в мире пикселей. Тебя там уже знают по имени?',
                 150: '150! Воу воу, полегче',
-                175: 'Говорят, на этом уровне уже становятся стримерами. Страшно...',
-                200: '200! Средненький GAMER',
-                250: 'Теперь ты можешь официально игнорировать любые социальные приглашения.',
+                175: 'Говорят, на этом ��овне уже становятся стримерами. Страшно...',
+                200: 'Теперь ты можешь официально игнорировать любые социальные пригаеия.',
                 300: 'GAMER',
-                350: 'Чем пахнет? А, это твоя социальная жизнь тлеет.',
+                350: 'Чем пахнет? А, это тв социальная жизнь леет.',
                 400: 'Игры пройдены, но где твоя личная жизнь?',
-                450: 'Врачи предупреждают: избыток пикселей вреден.',
-                500: 'Ты теперь — часть мебели. Поздравляем!',
+                450: 'Врачи предупежаю: избыток пикселе вреен.',
+                500: 'Ты теперь — часть мебели. Поздравляе!',
                 550: 'Твой экран устал. Дай ему выходной.',
                 600: 'Потрогай ТРАВУ',
                 650: 'Твоя виртуальная жизнь успешнее реальной. Это достижение?',
                 700: 'Get some help',
-                800: 'Achievement Unlocked: No life'
+                800: 'Achievement Unlocked: No life',
+                1000: 'TRUE GAMER'
             };
 
             if (milestones[completedGames]) {
@@ -1657,23 +2138,30 @@
             }, 3000);
         }
 
-        function searchGames() {
+        function searchGames(applyFilter = false) {
             const searchTerm = searchInput.value.toLowerCase().trim();
             document.querySelectorAll('.cell').forEach(cell => {
                 const gameName = cell.title.toLowerCase();
                 if (searchTerm === '' || gameName.includes(searchTerm)) {
-                    cell.classList.remove('search-dimmed');
-                    cell.classList.toggle('search-highlight', searchTerm !== '' && gameName.includes(searchTerm));
+                    cell.style.display = '';
                 } else {
-                    cell.classList.add('search-dimmed');
-                    cell.classList.remove('search-highlight');
+                    cell.style.display = 'none';
                 }
             });
+        }
+
+
+        function handleSearchKeyPress(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                searchGames(true);
+            }
         }
 
         function clearSearch() {
             searchInput.value = '';
             searchGames();
+            applyFilters();
         }
 
         function populateFilters() {
@@ -1737,77 +2225,237 @@
                 genresList.appendChild(label);
                 genresList.appendChild(document.createElement('br'));
             });
-
-            inProgressFilter.classList.toggle('active', filterInProgress);
         }
 
         function updateYearValue() {
-            yearValue.textContent = `${yearSliderMin.value} - ${yearSliderMax.value}`;
-            localStorage.setItem('minYear', yearSliderMin.value);
-            localStorage.setItem('maxYear', yearSliderMax.value);
+            const minYear = parseInt(yearSliderMin.value);
+            const maxYear = parseInt(yearSliderMax.value);
+            yearValue.textContent = minYear === maxYear ? `${minYear}` : `${minYear} - ${maxYear}`;
+            localStorage.setItem('minYear', minYear);
+            localStorage.setItem('maxYear', maxYear);
         }
 
-        const inProgressFilter = document.getElementById('inProgressFilter');
-        let filterInProgress = JSON.parse(localStorage.getItem('filterInProgress')) || false;
+        function updateInProgressRow() {
+            const inProgressGames = games.filter(game => game.inProgress);
+            
+            inProgressRow.innerHTML = '';
+            
+            inProgressGames.sort((a, b) => a.number - b.number);
+            
+            inProgressGames.forEach(game => {
+                const cell = createCell(game);
+                cell.classList.add('in-progress');
+                inProgressRow.appendChild(cell);
+            });
+            
+            if (inProgressGames.length > 0) {
+                inProgressRow.style.display = 'grid';
+            } else {
+                inProgressRow.style.display = 'none';
+            }
+            
+            updateAllCellSizes();
+            updateAllCellSaturations();
+        }
 
-        function applyFilters() {
+        function shouldShowGame(game) {
             const minSelectedYear = parseInt(yearSliderMin.value);
             const maxSelectedYear = parseInt(yearSliderMax.value);
-            selectedPlatforms = Array.from(platformsList.querySelectorAll('input:checked')).map(input => input.value);
-            selectedGenres = Array.from(genresList.querySelectorAll('input:checked')).map(input => input.value);
+            const yearMatch = game.year >= minSelectedYear && game.year <= maxSelectedYear;
+            const platformMatch = selectedPlatforms.length === 0 || game.platforms.some(platform => selectedPlatforms.includes(platform));
+            const genreMatch = selectedGenres.length === 0 || game.genres.some(genre => selectedGenres.includes(genre));
+            const completedMatch = !completedFilter.classList.contains('active') || game.completed;
+            return yearMatch && platformMatch && genreMatch && completedMatch;
+        }
 
+        function applyFilters() {
             games.forEach(game => {
                 const cell = document.querySelector(`.cell[title="${game.name}"]`);
                 if (cell) {
-                    const yearMatch = game.year >= minSelectedYear && game.year <= maxSelectedYear;
-                    const platformMatch = selectedPlatforms.length === 0 || game.platforms.some(platform => selectedPlatforms.includes(platform));
-                    const genreMatch = selectedGenres.length === 0 || game.genres.some(genre => selectedGenres.includes(genre));
-                    const inProgressMatch = !filterInProgress || game.inProgress;
-                    const shouldShow = yearMatch && platformMatch && genreMatch && inProgressMatch;
-                    cell.style.display = shouldShow ? '' : 'none';
+                    cell.style.display = shouldShowGame(game) ? '' : 'none';
+                }
+            });
+            updateInProgressRow();
+        }
+
+        function toggleCompletedFilter() {
+            const isActive = completedFilter.classList.toggle('active');
+            applyFilters();
+        }
+
+        function selectRandomGame() {
+            const availableGames = games.filter(game => !game.completed && !game.inProgress);
+            if (availableGames.length === 0) {
+                alert('Нет доступных игр для выбора');
+                return;
+            }
+            const randomGame = availableGames[Math.floor(Math.random() * availableGames.length)];
+            const randomCell = document.querySelector(`.cell[title="${randomGame.name}"]`);
+            
+            document.querySelectorAll('.cell').forEach(cell => {
+                cell.style.display = 'none';
+            });
+            
+            const img = randomCell.querySelector('img');
+            randomSelected.innerHTML = `
+                <img src="${img.src}" alt="${randomGame.name}">
+                <p>${randomGame.name} (${randomGame.year})</p>
+            `;
+            randomSelectedContainer.style.display = 'flex';
+            
+            document.getElementById('topButtons').style.display = 'flex';
+            document.getElementById('anotherRandomButton').style.display = 'block';
+            
+            setTimeout(() => {
+                const selectedImg = randomSelected.querySelector('img');
+                const containerWidth = (randomSelectedContainer.clientWidth - 40) * 1.5; // Увеличиваем на 50%
+                const containerHeight = (randomSelectedContainer.clientHeight - 200) * 1.5; // Увеличиваем на 50%
+                const imgAspectRatio = selectedImg.naturalWidth / selectedImg.naturalHeight;
+                
+                if (selectedImg.naturalWidth > containerWidth || selectedImg.naturalHeight > containerHeight) {
+                    if (containerWidth / imgAspectRatio <= containerHeight) {
+                        selectedImg.style.width = '150%'; // Увеличиваем на 50%
+                        selectedImg.style.height = 'auto';
+                    } else {
+                        selectedImg.style.width = 'auto';
+                        selectedImg.style.height = `${containerHeight}px`;
+                    }
+                } else {
+                    selectedImg.style.width = `${selectedImg.naturalWidth * 1.5}px`; // Увеличиваем на 50%
+                    selectedImg.style.height = `${selectedImg.naturalHeight * 1.5}px`; // Увеличиваем на 50%
+                }
+            }, 0);
+            
+            document.getElementById('wantToPlayButton').onclick = () => {
+                randomGame.inProgress = true;
+                randomCell.classList.add('in-progress');
+                hideRandomSelection();
+                updateInProgressRow();
+                saveInProgressGames();
+            };
+            
+            document.getElementById('dontWantButton').onclick = () => {
+                hideRandomSelection();
+            };
+            
+            document.getElementById('anotherRandomButton').onclick = () => {
+                selectRandomGame();
+            };
+        }
+
+        function hideRandomSelection() {
+            randomSelectedContainer.style.display = 'none';
+            document.querySelectorAll('.cell').forEach(cell => {
+                cell.style.display = '';
+            });
+            document.getElementById('topButtons').style.display = 'none';
+            document.getElementById('anotherRandomButton').style.display = 'none';
+        }
+
+        function updateSaturation() {
+            const saturation = saturationSlider.value;
+            document.querySelectorAll('.cell:not(.completed) img').forEach(img => {
+                img.style.filter = `saturate(${saturation}%)`;
+            });
+            document.querySelectorAll('.cell.completed img').forEach(img => {
+                if (saturation < 100) {
+                    img.style.filter = 'none';
+                } else {
+                    img.style.filter = 'brightness(85%)';
                 }
             });
         }
 
-        function toggleInProgressFilter() {
-            filterInProgress = !filterInProgress;
-            inProgressFilter.classList.toggle('active', filterInProgress);
-            localStorage.setItem('filterInProgress', JSON.stringify(filterInProgress));
-            applyFilters();
+        function updateCellSaturation(cell, isCompleted) {
+            const saturation = saturationSlider.value;
+            const img = cell.querySelector('img');
+            if (isCompleted) {
+                if (saturation < 100) {
+                    img.style.filter = 'none';
+                    cell.classList.remove('completed-darkened');
+                } else {
+                    img.style.filter = 'brightness(85%)';
+                    cell.classList.add('completed-darkened');
+                }
+            } else {
+                img.style.filter = `saturate(${saturation}%)`;
+                cell.classList.remove('completed-darkened');
+            }
+        }
+
+        function updateAllCellSaturations() {
+            document.querySelectorAll('.cell').forEach(cell => {
+                const isCompleted = cell.classList.contains('completed');
+                updateCellSaturation(cell, isCompleted);
+            });
         }
 
         function resetFilters() {
+            console.log("Сброс фильтров начат"); // Отладочное сообщение
+
             yearSliderMin.value = yearSliderMin.min;
             yearSliderMax.value = yearSliderMax.max;
             updateYearValue();
-            platformsList.querySelectorAll('input').forEach(input => input.checked = false);
-            genresList.querySelectorAll('input').forEach(input => input.checked = false);
-            filterInProgress = false;
-            inProgressFilter.classList.remove('active');
+
+            platformsList.querySelectorAll('input').forEach(input => {
+                input.checked = false;
+            });
             selectedPlatforms = [];
+
+            genresList.querySelectorAll('input').forEach(input => {
+                input.checked = false;
+            });
             selectedGenres = [];
+
+            completedFilter.classList.remove('active');
+
             localStorage.removeItem('selectedPlatforms');
             localStorage.removeItem('selectedGenres');
-            localStorage.removeItem('filterInProgress');
             localStorage.removeItem('minYear');
             localStorage.removeItem('maxYear');
+            
+            const currentSaturation = saturationSlider.value;
+            
             applyFilters();
+            
+            saturationSlider.value = currentSaturation;
+            updateSaturation();
+
+            updateCounter();
+            updateInProgressRow();
+
+            filtersPanel.style.display = 'none';
+
+            console.log("Сброс фильтров завершен"); // Отладочное сообщение
         }
 
-        inProgressFilter.addEventListener('click', toggleInProgressFilter);
+        function showAuthorCredit() {
+            authorCredit.style.display = 'block';
+            clearTimeout(authorCreditTimeout);
+            authorCreditTimeout = setTimeout(() => {
+                authorCredit.style.display = 'none';
+            }, 3000);
+        }
 
+        completedFilter.addEventListener('click', toggleCompletedFilter);
+        randomButton.addEventListener('click', selectRandomGame);
+        saturationSlider.addEventListener('input', updateSaturation);
 
         yearSliderMin.addEventListener('input', () => {
-            if (parseInt(yearSliderMin.value) > parseInt(yearSliderMax.value)) {
-                yearSliderMin.value = yearSliderMax.value;
+            const minVal = parseInt(yearSliderMin.value);
+            const maxVal = parseInt(yearSliderMax.value);
+            if (minVal > maxVal - 1) {
+                yearSliderMin.value = maxVal - 1;
             }
             updateYearValue();
             applyFilters();
         });
 
         yearSliderMax.addEventListener('input', () => {
-            if (parseInt(yearSliderMax.value) < parseInt(yearSliderMin.value)) {
-                yearSliderMax.value = yearSliderMin.value;
+            const minVal = parseInt(yearSliderMin.value);
+            const maxVal = parseInt(yearSliderMax.value);
+            if (maxVal < minVal + 1) {
+                yearSliderMax.value = minVal + 1;
             }
             updateYearValue();
             applyFilters();
@@ -1819,6 +2467,8 @@
         hideCompletedButton.addEventListener('click', toggleHideCompleted);
         resetButton.addEventListener('click', resetProgress);
         searchInput.addEventListener('input', searchGames);
+        searchInput.addEventListener('input', () => searchGames(false));
+        searchInput.addEventListener('keypress', handleSearchKeyPress);
         clearSearchButton.addEventListener('click', clearSearch);
         filtersButton.addEventListener('click', () => {
             filtersPanel.style.display = filtersPanel.style.display === 'none' ? 'block' : 'none';
@@ -1835,8 +2485,14 @@
 
         populateFilters();
         games.forEach(game => {
-            grid.appendChild(createCell(game));
+            const cell = createCell(game);
+            if (game.inProgress) {
+                inProgressRow.appendChild(cell);
+            } else {
+                grid.appendChild(cell);
+            }
         });
+        updateInProgressRow();
 
         updateCounter();
 
@@ -1849,7 +2505,16 @@
         
         populateFilters();
         applyFilters();
+        updateInProgressRow();
 
+        window.addEventListener('resize', updateInProgressRow);
+        updateInProgressRow();
+
+        const resetFiltersButtonHeader = document.getElementById('resetFiltersButtonHeader');
+        resetFiltersButtonHeader.addEventListener('click', function() {
+            console.log("Кнопка сброса фильтов в шапке нажата"); // Отладочное сообщение
+            resetFilters();
+        });
     </script>
 </body>
 </html>
