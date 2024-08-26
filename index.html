@@ -2,7 +2,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ТОП 1000</title>
+    <title>ТОП ИГР НА ПРОХОЖДЕНИЕ</title>
     <style>
         body {
             background-color: #222;
@@ -29,7 +29,7 @@
             display: flex;
             align-items: center;
         }
-        #togglePreview, #resetButton, #inProgressButton, #hideCompletedButton, #filtersButton, #clearSearchButton, #resetFiltersButton, #randomButton {
+        #togglePreview, #resetButton, #inProgressButton, #filtersButton, #clearSearchButton, #resetFiltersButton, #randomButton, #importFromApiButton, #addGameButton {
             border: none;
             color: white;
             padding: 5px 10px;
@@ -56,7 +56,7 @@
             background-color: #f44336;
         }
         #inProgressButton {
-            background-color: #FF9800;
+            background-color: #ff9900;
             transition: all 0.3s ease;
         }
         #inProgressButton.active {
@@ -64,13 +64,41 @@
             box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5), 0 0 15px rgba(255, 152, 0, 0.7);
             transform: translateY(2px);
         }
+        #completedFilter, #hideCompletedButton {
+            flex: 1;
+            border: none;
+            color: white;
+            padding: 5px 10px;
+            text-align: center;
+            text-decoration: none;
+            font-size: 14px;
+            margin: 0 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 5px;
+            font-weight: bold;
+            text-transform: uppercase;
+            white-space: normal;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            word-wrap: break-word;
+            min-height: 43px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
         #hideCompletedButton {
             background-color: #2196F3;
         }
         #hideCompletedButton.active {
             background-color: #1976D2;
             box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5), 0 0 15px rgba(33, 150, 243, 0.7);
-            transform: translateY(2px);
+            transform: translateY(3px);
+        }
+        .button-disabled {
+            opacity: 0.5;
+            pointer-events: none;
         }
         #filtersButton {
             background-color: #4CAF50;
@@ -87,12 +115,44 @@
         #randomButton {
             background-color: #2a2a2a;
         }
-        #togglePreview:hover, #resetButton:hover, #inProgressButton:hover, #hideCompletedButton:hover, #filtersButton:hover, #clearSearchButton:hover, #resetFiltersButton:hover, #randomButton:hover {
+        #addGameButton {
+            background-color: #2196F3;
+        }
+        #togglePreview:hover, #resetButton:hover, #inProgressButton:hover, #hideCompletedButton:hover, #filtersButton:hover, #clearSearchButton:hover, #resetFiltersButton:hover, #randomButton:hover, #importFromApiButton:hover, #addGameButton:hover {
             opacity: 0.9;
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
         }
-        #togglePreview:active, #resetButton:active, #inProgressButton:active, #hideCompletedButton:active, #filtersButton:active, #clearSearchButton:active, #resetFiltersButton:active, #randomButton:active {
+        #togglePreview:active, #resetButton:active, #inProgressButton:active, #hideCompletedButton:active, #filtersButton:active, #clearSearchButton:active, #resetFiltersButton:active, #randomButton:active, #importFromApiButton:active, #addGameButton:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        #customGameListButton {
+            background-color: #c29129;
+            border: none;
+            color: white;
+            padding: 5px 10px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+            margin: 10px 0;
+            margin-left: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 5px;
+            font-weight: bold;
+            text-transform: uppercase;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        #customGameListButton:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        #customGameListButton:active {
             transform: translateY(0);
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
@@ -131,6 +191,59 @@
             transform-origin: right;
             transition: transform 0.5s;
         }
+        #searchGameButton {
+            background-color: #2196F3;
+            border: none;
+            color: white;
+            padding: 5px 10px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+            margin: 0 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 5px;
+            font-weight: bold;
+            text-transform: uppercase;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        #searchGameButton:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        #searchGameButton:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        #deleteAllCustomGamesButton, #deleteAllApiGamesButton {
+            margin-right: 10px;
+        }
+        #deleteAllApiGamesButton {
+            background-color: #f44336;
+            color: white;
+            border: none;
+            padding: 10px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+            margin: 4px 2px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        #deleteAllApiGamesButton:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        #deleteAllApiGamesButton:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
         #counterContainer {
             position: absolute;
             left: 50%;
@@ -167,8 +280,11 @@
             object-fit: cover;
             transition: filter 0.3s;
         }
+        .cell.completed {
+            filter: saturate(90%) !important;
+        }
         .cell.completed img {
-            filter: brightness(85%);
+            filter: saturate(90%) !important;
         }
         .cell.completed::before {
             content: '';
@@ -195,14 +311,13 @@
             pointer-events: none;
         }
         .cell.in-progress {
+            filter: saturate(100%) !important;
             position: relative; 
             background: none;
         }
-
         .cell.in-progress::before {
             content: none;
         }
-
         .cell.search-dimmed {
             filter: brightness(30%);
         }
@@ -218,11 +333,21 @@
             display: none;
         }
         #sizeSlider {
+            margin: 0;
+            width: 30vw;
+            transform: none;
+            position: static;
+        }
+        #sizeSliderContainer {
             position: fixed;
             bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
-            width: 30vw
+            background-color: rgba(0, 0, 0, 0.8);
+            border-radius: 20px;
+            padding: 5px 8px;
+            display: flex;
+            align-items: center;
         }
         .preview {
             position: fixed;
@@ -262,24 +387,10 @@
             display: none;
             text-align: center;
         }
-
         .game-title .game-year {
             display: block;
             font-size: 0.8em;
             margin-top: 2px;
-        }
-
-        #milestone {
-            position: fixed;
-            top: 50px;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: rgba(0, 0, 0, 1);
-            color: white;
-            padding: 10px;
-            border-radius: 5px;
-            display: none;
-            z-index: 1006;
         }
         #searchInput {
             margin-left: 10px;
@@ -299,16 +410,30 @@
         #yearSlider {
             width: 100%;
         }
-        #platformsList, #genresList {
+        #platformsList {
+            padding: 0;
+            padding-left: 11px;
+            margin-right: 13px;
+            flex-wrap: wrap;
+            gap: 5px;
             max-height: 200px;
             overflow-y: auto;
+        }
+        #genresList {
+            margin: 0; 
+            padding-left: 0; 
+            padding: 0;
+            flex-wrap: wrap;
+            gap: 5px;
+            max-height: 200px;
+            overflow-y: auto;
+            margin: 12px;
         }
         .double-slider {
             position: relative;
             width: 100%;
             height: 40px;
         }
-
         .double-slider input[type="range"] {
             -webkit-appearance: none;
             width: 100%;
@@ -321,7 +446,6 @@
             z-index: 2;
             appearance: none;
         }
-
         .double-slider input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
             width: 16px;
@@ -334,7 +458,6 @@
             box-shadow: 0 0 0 3px #fff, 0 0 0 6px rgba(76, 175, 80, 0.1);
             z-index: 3;
         }
-
         .double-slider input[type="range"]::-moz-range-thumb {
             width: 16px;
             height: 16px;
@@ -346,7 +469,6 @@
             border: none;
             z-index: 3;
         }
-
         .slider-track {
             width: 100%;
             height: 4px;
@@ -357,14 +479,12 @@
             border-radius: 2px;
             z-index: 1;
         }
-
         #yearValue {
             text-align: center;
             margin-top: 10px;
             font-weight: bold;
             color: inherit;
         }
-
         #inProgressRow {
             display: flex;
             flex-wrap: wrap;
@@ -375,60 +495,126 @@
             justify-content: flex-start;
             align-items: flex-start;
         }
-
         #inProgressRow .cell {
             flex: 0 0 auto;
             width: calc(var(--cell-size) * 1.2);
             height: calc(var(--cell-size) * 1.2 * 1.33);
             border: none;
         }
-
         #mainContent {
             padding-top: 1px;
         }
-
         .cell.completed img {
             filter: brightness(85%);
         }
-
         #filterButtons {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        #filterButtons button {
+            flex: 1;
+            margin: 0 5px;
+        }
+        #resetFiltersButtonContainer {
             display: flex;
             justify-content: center;
             margin-top: 10px;
         }
-
-        #completedFilter, #resetFiltersButton {
-            font-size: 14px;
-            padding: 5px 10px;
-            margin: 0 5px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            height: 30px;
-            font-weight: bold;
-            text-transform: uppercase;
+        #resetFiltersButton {
+            width: 80%;
         }
-
-        #completedFilter {
-            background-color: #4CAF50;
-            color: white;
-        }
-
         #resetFiltersButton {
             background-color: #f44336;
             color: white;
+            border: none;
+            padding: 10px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+            margin: 4px 2px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
+        #completedFilter {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+            margin: 4px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        #completedFilter, #hideCompletedButton {
+            width: calc(50% - 10px);
+        }
+        #completedFilter {
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            line-height: 1.2;
+        }
+        #resetFiltersButton {
+            padding: 7px;
+            width: 70%;
+            margin: 2px auto;
+            display: block;
+        }
+        #resetFiltersButton:hover {
+            background-color: #b92f2f;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        #hideCompletedButton:hover {
+            background-color: #1976D2;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        #completedFilter:hover {
+            background-color: #16831b;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 
+        }
+        #resetFiltersButton:active {
+            background-color: #8a161c;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+            transform: translateY(6px);
+        }
+        #completedFilter:active {
+            background-color: #17811d;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+            transform: translateY(2px);
+        }
+        #hideCompletedButton:active {
+            background-color: #0D47A1;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+            transform: translateY(2px);
+        }
+        #completedFilter.active, #hideCompletedButton.active {
+            background-color: #1976D2;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5), 0 0 15px rgba(33, 150, 243, 0.7);
+        }
+        #completedFilter.active {
+            background-color: #11831b;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5), 0 0 15px rgba(20, 190, 48, 0.671);
+        }
         #saturationContainer {
             margin-top: 15px;
             text-align: center;
         }
-
         #saturationSlider {
             width: 100%;
             margin-top: 5px;
         }
-
         #randomButton {
             background-color: #2a2a2a;
             color: white;
@@ -444,19 +630,16 @@
             z-index: 1;
             height: 24px;
         }
-
         #randomButton:hover {
-            background: linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000);
+            background: linear-gradient(75deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000);
             background-size: 400% 400%;
-            animation: rainbow 5s ease infinite;
+            animation: rainbow 222s linear infinite;
         }
-
         @keyframes rainbow { 
-           0% { background-position: 0% 50%; }
-           50% { background-position: 100% 50%; }
-           100% { background-position: 0% 50%; }
+            to {
+                background-position: 2000vh;
+            }
         }
-
         .random-selected {
             position: fixed;
             top: 50%;
@@ -466,27 +649,11 @@
             width: 65vw;
             height: 65vh;
         }
-
         .random-selected img {
             width: 100%;
             height: 100%;
             object-fit: contain;
         }
-
-        #authorCredit {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: rgba(0, 0, 0, 0.8);
-            color: white;
-            padding: 20px;
-            border-radius: 10px;
-            font-size: 24px;
-            display: none;
-            z-index: 1010;
-        }
-
         #randomSelectedContainer {
             position: fixed;
             top: 50%;
@@ -504,13 +671,11 @@
             max-height: 95vh;
             overflow: auto;
         }
-
         #randomSelected {
             display: flex;
             flex-direction: column;
             align-items: center;
         }
-
         #randomSelected img {
             max-width: 150%;
             max-height: calc(95vh - 200px);
@@ -519,26 +684,22 @@
             object-fit: contain;
             margin-bottom: 10px;
         }
-
         #randomSelected p {
             margin: 10px 0;
             font-size: 18px;
             word-wrap: break-word;
             max-width: 100%;
         }
-
         #topButtons {
             display: flex;
             justify-content: space-between;
             width: 100%;
             margin-top: 20px;
         }
-
         #anotherRandomButton {
             display: block;
             margin: 20px auto 0;
         }
-
         #dontWantButton, #wantToPlayButton, #anotherRandomButton {
             padding: 10px 20px;
             border: none;
@@ -549,7 +710,6 @@
             text-transform: uppercase;
             transition: background-color 0.3s, transform 0.1s;
         }
-
         #dontWantButton, #wantToPlayButton {
             flex: 1;
             margin: 0 10px;
@@ -557,44 +717,35 @@
             overflow: hidden;
             text-overflow: ellipsis;
         }
-
         #dontWantButton {
             background-color: #f44336;
             color: white;
         }
-
         #wantToPlayButton {
             background-color: #4CAF50;
             color: white;
         }
-
         #anotherRandomButton {
             background-color: #FF9800;
             color: white;
             width: calc(100% - 20px);
         }
-
         #dontWantButton:hover, #wantToPlayButton:hover, #anotherRandomButton:hover {
             opacity: 0.9;
         }
-
         #dontWantButton:active, #wantToPlayButton:active, #anotherRandomButton:active {
             transform: scale(0.98);
         }
-
         .preview p {
             word-wrap: break-word;
             max-width: 100%;
         }
-
         #mainContent {
             padding-top: 40px;
         }
-
         #grid {
             padding-top: 5px;
         }
-
         .square-button {
             width: 24px;
             height: 24px;
@@ -609,23 +760,19 @@
             transition: all 0.3s ease;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
-
         #clearSearchButton, #resetFiltersButtonHeader {
             background-color: #f44336;
             color: white;
         }
-
         #clearSearchButton:hover, #resetFiltersButtonHeader:hover {
             opacity: 0.9;
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
         }
-
         #clearSearchButton:active, #resetFiltersButtonHeader:active {
             transform: translateY(0);
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
         }
-
         .cell.completed::after {
             content: '';
             position: absolute;
@@ -636,7 +783,6 @@
             background: linear-gradient(to bottom right, transparent calc(50% - 1px), #fff, transparent calc(50% + 1px));
             pointer-events: none;
         }
-
         .modal {
             display: none;
             position: fixed;
@@ -648,10 +794,9 @@
             background-color: rgba(0,0,0,0.7);
             backdrop-filter: blur(5px);
         }
-
         .modal-content {
             background-color: #2a2a2a;
-            margin: 10% auto;
+            margin: 3% auto;
             padding: 30px;
             border: none;
             border-radius: 10px;
@@ -659,8 +804,20 @@
             max-width: 500px;
             color: white;
             box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            max-height: calc(95vh - 40px);
+            overflow-y: auto;
+            bottom: 15vh;
         }
-
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .button-container button {
+            width: 48%;
+            padding: 10px;
+            font-size: 14px;
+        }
         .close {
             color: #aaa;
             float: right;
@@ -669,17 +826,70 @@
             cursor: pointer;
             transition: color 0.3s;
         }
-
         .close:hover,
         .close:focus {
             color: #fff;
         }
-
+        #searchResults {
+            position: relative;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+        .search-result {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            filter: saturate(100%) !important;
+        }
+        .search-result button {
+            margin-left: 10px;
+        }
+        #searchResults .cell {
+            filter: saturate(100%) !important;
+        }
+        .cell.search-match {
+            filter: saturate(100%) !important;
+        }
+        .message-overlay {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            font-size: 18px;
+            padding: 10px 20px;
+            border-radius: 20px;
+            z-index: 9998;
+            pointer-events: none;
+        }
+        #closeSearchResults {
+            background-color: #f44336 !important;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+            margin-left: 300px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            border-radius: 5px;
+            display: none;
+            flex-shrink: 0;
+        }
+        #closeSearchResults:hover {
+            background-color: #d32f2f;
+        }
+        #closeSearchResults:active {
+            background-color: #b71c1c;
+        }
         #addGameForm {
             display: flex;
             flex-direction: column;
         }
-
         #addGameForm input {
             margin-bottom: 15px;
             padding: 10px;
@@ -688,25 +898,24 @@
             border-radius: 5px;
             color: white;
             font-size: 16px;
+            width: 100%;
+            box-sizing: border-box;
         }
-
         #addGameForm input:focus {
             outline: none;
             border-color: #4CAF50;
         }
-
         #addGameForm label {
+            display: block;
             margin-bottom: 5px;
             font-weight: bold;
         }
-
         .form-buttons {
             display: flex;
             justify-content: flex-end;
             gap: 10px;
             margin-top: 20px;
         }
-
         #addGameForm button,
         #cancelAddGame {
             padding: 10px 20px;
@@ -716,26 +925,249 @@
             font-size: 16px;
             transition: background-color 0.3s, transform 0.1s;
         }
-
         #addGameForm button {
             background-color: #4CAF50;
             color: white;
         }
-
         #cancelAddGame {
             background-color: #f44336;
             color: white;
         }
-
         #addGameForm button:hover,
         #cancelAddGame:hover {
             opacity: 0.9;
             transform: translateY(-2px);
         }
-
         #addGameForm button:active,
         #cancelAddGame:active {
             transform: translateY(0);
+        }
+        .abbreviation-placeholder {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+            background-color: #1a1a1a;
+            font-size: 1.5em;
+            font-weight: bold;
+            font-family: 'Arial', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            word-break: break-word;
+            padding: 5%;
+            box-sizing: border-box;
+        }
+        .custom-game .abbreviation-placeholder {
+            background-color: #1a1a1a;
+        }
+        .preview .abbreviation-placeholder {
+            width: 200px;
+            height: 300px;
+            font-size: 24px;
+            background-color: #333;
+        }
+        .custom-game-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 5px;
+            background-color: #444;
+            border-radius: 5px;
+        }
+        .custom-game-item button {
+            margin-left: 10px;
+            padding: 5px 10px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .custom-game-item .delete-game {
+            background-color: #f44336;
+            color: white;
+        }
+        .custom-game-item .delete-game:hover {
+            background-color: #d32f2f;
+        }
+        .delete-game {
+            background-color: #f44336;
+            color: white;
+        }
+        .required-fields {
+            font-size: 12px;
+            color: #888;
+            margin-top: 10px;
+        }
+        .input-with-button {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 15px;
+        }
+        .input-with-button .input-button-wrapper {
+            display: flex;
+            align-items: center;
+        }
+        .input-with-button input {
+            flex-grow: 1;
+            margin-right: 10px;
+            margin-bottom: 0;
+        }
+        .input-with-button button {
+            padding: 8px 12px;
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            transform: translateY(-5px);
+        }
+        .input-with-button button:hover {
+            background-color: #1976D2;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+        .input-with-button button:active {
+            background-color: #0D47A1;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+        #importFromApiModalButton, #searchGameModalButton {
+            width: 48%;
+            font-size: 14px;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        #buttonContainer {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        #searchInputContainer {
+            display: block;
+            margin-top: 10px;
+        }
+        #searchResults {
+            margin-top: 10px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .search-result {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        .add-game-button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+        #optionsList {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+        }
+        #optionsList label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        #applyOptionsBtn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #customGameSearchInput {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        #customGameList {
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+        #customGameList::-webkit-scrollbar {
+            width: 10px;
+        }
+        #customGameList::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        #customGameList::-webkit-scrollbar-thumb {
+            background: #888;
+        }
+        #customGameList::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        .abbreviation-placeholder {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+            background-color: #1a1a1a;
+            font-size: 1.5em;
+            font-weight: bold;
+            font-family: 'Arial', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            word-break: break-word;
+            padding: 5%;
+            box-sizing: border-box;
+        }
+        .preview .abbreviation-placeholder,
+        #randomSelected .abbreviation-placeholder {
+            width: 200px;
+            height: 300px;
+            font-size: 24px;
+            background-color: #333;
+        }
+        .saturated {
+            transition: filter 0.3s ease;
+        }
+        .in-progress img {
+            filter: saturate(100%) !important;
+        }
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            pointer-events: none;
+        }
+
+        .loading-message {
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 20px 40px;
+            border-radius: 50px;
+            font-size: 24px;
+            text-align: center;
         }
     </style>
 </head>
@@ -744,6 +1176,7 @@
         <div id="progressBarContainer">
             <div id="progressBarPattern"></div>
             <div id="progressBarCover"></div>
+            <button id="searchGameButton">Найти игру</button>
         </div>
         <div id="leftGroup">
             <button id="togglePreview">Превью</button>
@@ -753,20 +1186,21 @@
             <button id="resetFiltersButtonHeader" class="square-button">×</button>
         </div>
         <div id="counterContainer">
-            <div id="counter">ройдено: 0 из 0</div>
+            <div id="counter">Пройдено: 0 из 0</div>
         </div>
         <div id="rightGroup">
             <button id="randomButton">Random</button>
             <button id="inProgressButton">В процессе</button>
-            <button id="hideCompletedButton">Скрыть пройденные</button>
+            <button id="addGameButton">Добавить игру</button>
             <button id="resetButton">Сброс</button>
         </div>
     </div>
     <div id="mainContent">
         <div id="inProgressRow"></div>
         <div id="grid"></div>
+    <div id="sizeSliderContainer">
+        <input type="range" id="sizeSlider" min="25" max="250" value="50" step="1">
     </div>
-    <input type="range" id="sizeSlider" min="25" max="250" value="50" step="1">
     <div class="preview" id="preview">
         <div class="preview-content">
             <img src="" alt="">
@@ -774,10 +1208,9 @@
         </div>
     </div>
     <div class="game-title" id="gameTitle"></div>
-    <div id="milestone"></div>
     <div id="filtersPanel">
         <h3>
-            <button id="addGameButton">Добавить игру</button>
+            <button id="customGameListButton">Список игр</button>
         </h3>
         <label for="yearSlider">Год выпуска: <span id="yearValue"></span></label>
         <div class="double-slider">
@@ -790,15 +1223,17 @@
         <h4>Жанры:</h4>
         <div id="genresList"></div>
         <div id="filterButtons">
-            <button id="completedFilter">Только пройденные</button>
-            <button id="resetFiltersButton">Сбросить фильтр</button>
+            <button id="completedFilter">Только<br>пройденные</button>
+            <button id="hideCompletedButton">Скрыть пройденные</button>
+        </div>
+        <div id="resetFiltersButtonContainer">
+            <button id="resetFiltersButton">Сбросить фильтры</button>
         </div>
         <div id="saturationContainer">
             <label for="saturationSlider">Насыщенность</label>
             <input type="range" id="saturationSlider" min="0" max="100" value="100">
         </div>
     </div>
-    <div id="authorCredit">Made by Papz</div>
     <div id="randomSelectedContainer">
         <div id="randomSelected"></div>
         <div id="topButtons">
@@ -807,36 +1242,47 @@
         </div>
         <button id="anotherRandomButton">давай другую</button>
     </div>
-
+    <div id="loadingOverlay" class="loading-overlay" style="display: none;">
+        <div class="loading-message">Загружается, подождите...</div>
+    </div>
     <div id="addGameModal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
-            <h2>Добавить новую игру</h2>
+            <h2>Добавить игры</h2>
             <form id="addGameForm">
-                <label for="gameName">Название игры:</label>
-                <input type="text" id="gameName" required>
-                
-                <label for="gameYear">Год выпуска:</label>
-                <input type="number" id="gameYear" min="1950" max="2099">
-                
-                <label for="gamePlatforms">Платформы (через запятую):</label>
-                <input type="text" id="gamePlatforms">
-                
-                <label for="gameGenres">Жанры (через запятую):</label>
-                <input type="text" id="gameGenres">
-                
-                <label for="gameImageUrl">URL изображения:</label>
-                <input type="url" id="gameImageUrl">
-                
-                <div class="form-buttons">
-                    <button type="button" id="cancelAddGame">Отмена</button>
-                    <button type="submit">Добавить</button>
+                <div id="buttonContainer">
+                    <button type="button" id="importFromApiModalButton">Добавить 100 игр</button>
+                    <button type="button" id="searchGameModalButton">Добавить 10 игр</button>
                 </div>
+                <div id="searchInputContainer" style="display: none;">
+                    <input type="text" id="searchGameInput" placeholder="Введите название игры">
+                    <button type="button" id="performSearchButton">Поиск</button>
+                    <button id="closeSearchResults" type="button">Очистить</button>
+                </div>
+                <div id="searchResults"></div>
             </form>
+        </div>
+    </div>
+    <div id="selectOptionsModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2 id="selectOptionsTitle"></h2>
+            <div id="optionsList"></div>
+            <button id="applyOptionsBtn">Применить</button>
+        </div>
+    </div>
+    <div id="customGameListModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Список добавленных игр</h2>
+            <input type="text" id="customGameSearchInput" placeholder="Поиск игры...">
+            <div id="customGameList"></div>
+            <button id="deleteAllApiGamesButton">Удалить все добавленные игры</button>
         </div>
     </div>
 
     <script>
+        console.log('Скрипт начал выполнение');
         const mainContent = document.getElementById('mainContent');
         const grid = document.getElementById('grid');
         const counter = document.getElementById('counter');
@@ -848,7 +1294,6 @@
         const inProgressButton = document.getElementById('inProgressButton');
         const gameTitle = document.getElementById('gameTitle');
         const progressBarCover = document.getElementById('progressBarCover');
-        const milestone = document.getElementById('milestone');
         const searchInput = document.getElementById('searchInput');
         const clearSearchButton = document.getElementById('clearSearchButton');
         const filtersButton = document.getElementById('filtersButton');
@@ -864,6 +1309,11 @@
         const saturationSlider = document.getElementById('saturationSlider');
         const inProgressRow = document.getElementById('inProgressRow');
         const authorCredit = document.getElementById('authorCredit');
+        const searchGameModalButton = document.getElementById('searchGameModalButton');
+        const searchInputContainer = document.getElementById('searchInputContainer');
+        const searchGameInput = document.getElementById('searchGameInput');
+        const performSearchButton = document.getElementById('performSearchButton');
+        const searchResults = document.getElementById('searchResults');
         let authorCreditTimeout;
         let completedGames = 0;
         let games = [];
@@ -1887,25 +2337,26 @@
             genres: game.genres,
             platforms: game.platforms,
             completed: false,
-            inProgress: false
+            inProgress: false,
+            isCustom: false
         }));
 
-        const savedGames = JSON.parse(localStorage.getItem('completedGames')) || {};
-        const savedInProgressGames = JSON.parse(localStorage.getItem('inProgressGames')) || {};
-        games.forEach(game => {
-            if (savedGames[game.id]) {
-                game.completed = true;
-                completedGames++;
+        function loadSavedGames() {
+            const savedGames = localStorage.getItem('games');
+            if (savedGames) {
+                games = JSON.parse(savedGames);
+                completedGames = games.filter(game => game.completed).length;
+                updateInProgressRow();
             }
-            if (savedInProgressGames[game.id]) {
-                game.inProgress = true;
-            }
-        });
+        }
+
+        function saveGames() {
+            localStorage.setItem('games', JSON.stringify(games));
+        }
 
         function updateCounter() {
             counter.textContent = `Пройдено: ${completedGames} из ${games.length}`;
             updateProgressBar();
-            checkMilestone();
         }
 
         function updateProgressBar() {
@@ -1914,8 +2365,17 @@
         }
 
         function toggleCell(cell, gameId) {
-            const game = games.find(g => g.id === gameId);
+            if (!gameId) {
+                console.error('ID игры не определен');
+                return;
+            }
             
+            const game = games.find(g => g.id && g.id.toString() === gameId.toString());
+            if (!game) {
+                console.error('Игра не найдена для ID:', gameId);
+                return;
+            }
+                        
             if (inProgressMode) {
                 if (!game.inProgress && !game.completed) {
                     game.inProgress = true;
@@ -1942,18 +2402,13 @@
                     completedGames++;
                 }
             }
+            updateSaturation();
             
             cell.classList.remove('completed', 'in-progress');
             if (game.completed) {
                 cell.classList.add('completed');
             } else if (game.inProgress) {
                 cell.classList.add('in-progress');
-            }
-            
-            if (game.completed) {
-                cell.querySelector('img').style.filter = 'saturate(100%)';
-            } else {
-                updateSaturation();
             }
             
             if (game.inProgress) {
@@ -1967,16 +2422,44 @@
                     insertCellInOrder(cell);
                 }
             }
-            
-            saveCompletedGames();
-            saveInProgressGames();
+
+            if (game.completed) {
+                cell.classList.add('completed');
+            } else if (game.inProgress) {
+                cell.classList.add('in-progress');
+            }
+
+            updateCellSize(cell, game.inProgress);
             
             if (hideCompleted) {
                 cell.classList.toggle('hidden', game.completed);
             }
-            
+
+            if (game.inProgress) {
+                cell.classList.add('in-progress');
+            } else {
+                cell.classList.remove('in-progress');
+            }
+
+            updateSaturation();
+            saveGames();
             hidePreviewAndTitle();
             updateCounter();
+            updateInProgressRow();
+            applyFilters();
+        }
+
+        function renderGames() {
+            grid.innerHTML = '';
+            inProgressRow.innerHTML = '';
+            games.forEach(game => {
+                const cell = createCell(game);
+                if (game.inProgress) {
+                    inProgressRow.appendChild(cell);
+                } else {
+                    grid.appendChild(cell);
+                }
+            });
             updateInProgressRow();
             applyFilters();
         }
@@ -1993,49 +2476,148 @@
             }
         }
 
-        function saveCompletedGames() {
-            const completedGames = {};
-            games.forEach(game => {
-                if (game.completed) {
-                    completedGames[game.id] = true;
-                }
-            });
-            localStorage.setItem('completedGames', JSON.stringify(completedGames));
-        }
-
-        function saveInProgressGames() {
-            const inProgressGames = {};
-            games.forEach(game => {
-                if (game.inProgress) {
-                    inProgressGames[game.id] = true;
-                }
-            });
-            localStorage.setItem('inProgressGames', JSON.stringify(inProgressGames));
-        }
-
-        function createCell(game) {
-            const cell = document.createElement('div');
-            cell.className = 'cell';
-            cell.dataset.gameId = game.id;
-            if (game.completed) {
-                cell.classList.add('completed');
-                if (hideCompleted) {
-                    cell.classList.add('hidden');
+        async function searchGameFromApi() {
+            showLoadingMessage();
+            const gameName = searchGameInput.value.trim();
+            if (gameName) {
+                try {
+                    const response = await fetch(`https://nu3ichego5ti2suda7prishel.uhadi.workers.dev/search?name=${encodeURIComponent(gameName)}`);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    const games = await response.json();
+                    displaySearchResults(games);
+                } catch (error) {
+                    console.error('Error searching for game:', error);
+                    searchResults.innerHTML = '<p>Ошибка при поиске игры. Пожалуйста, попробуйте еще раз.</p>';
+                } finally {
+                    hideLoadingMessage();
                 }
             }
-            if (game.inProgress) {
-                cell.classList.add('in-progress');
+        }
+
+        function displaySearchResults(games) {
+            searchResults.innerHTML = '';
+            if (games.length === 0) {
+                searchResults.innerHTML = '<p>Игры не найдены.</p>';
+                return;
             }
-            cell.innerHTML = `<img src="${game.imageUrl}" alt="${game.name}">`;
-            cell.title = game.name;
-            cell.addEventListener('click', () => toggleCell(cell, game.id));
-            cell.addEventListener('mousemove', (e) => showPreviewOrTitle(e, game));
-            cell.addEventListener('mouseleave', hidePreviewAndTitle);
+            games.forEach(game => {
+                const resultElement = document.createElement('div');
+                resultElement.className = 'search-result';
+                const releaseYear = game.first_release_date ? new Date(game.first_release_date * 1000).getFullYear() : 'N/A';
+                resultElement.innerHTML = `
+                    <span>${game.name} (${releaseYear})</span>
+                    <button type="button" class="add-game-button">Добавить</button>
+                `;
+                resultElement.querySelector('.add-game-button').addEventListener('click', () => addGameFromSearch(game));
+                searchResults.appendChild(resultElement);
+            });
+            document.getElementById('closeSearchResults').style.display = 'inline-block';
+        }
+
+        performSearchButton.addEventListener('click', () => {
+                console.log('Выполняется поиск игры:', searchGameInput.value);
+            });
+
+        function updateInProgressRow() {
+            inProgressRow.innerHTML = '';
+            const inProgressGames = games.filter(game => game.inProgress);
+            inProgressGames.forEach(game => {
+                const cell = createCell(game);
+                inProgressRow.appendChild(cell);
+            });
             
-            updateCellSize(cell, game.inProgress);
-            updateCellSaturation(cell, game.completed);
+            if (inProgressRow.children.length > 0) {
+                inProgressRow.style.display = 'flex';
+            } else {
+                inProgressRow.style.display = 'none';
+            }
             
-            return cell;
+            const size = sizeSlider.value;
+            inProgressRow.querySelectorAll('.cell').forEach(cell => {
+                updateCellSize(cell, true);
+            });
+        }
+
+        function addGameFromSearch(game) {
+            const newGame = {
+                id: Date.now(),
+                name: game.name,
+                year: game.first_release_date ? new Date(game.first_release_date * 1000).getFullYear() : null,
+                genres: game.genres ? game.genres.map(g => g.name) : [],
+                platforms: game.platforms ? game.platforms.map(p => getPlatformName(p.id)).filter(p => p !== null && p !== "") : [],
+                imageUrl: game.cover ? convertImageUrl(game.cover.url) : '',
+                isCustom: true,
+                importedFromApi: true,
+                completed: false,
+                inProgress: false
+            };
+
+            if (!isDuplicateGame(newGame)) {
+                addNewGame(newGame);
+                saveGames();
+                showMessage('Игра успешно добавлена!');
+            } else {
+                showMessage('Эта игра уже есть в вашем списке.');
+            }
+        }
+
+        function getPlatformName(platformId) {
+            const platformMap = {
+                6: "PC (Microsoft Windows)",
+                167: "PlayStation 5",
+                169: "Xbox Series X|S",
+                130: "Nintendo Switch",
+                48: "PlayStation 4",
+                49: "Xbox One",
+                41: "Wii U",
+                9: "PlayStation 3",
+                12: "Xbox 360",
+                5: "Wii",
+                37: "Nintendo 3DS",
+                46: "PlayStation Vita",
+                8: "PlayStation 2",
+                11: "Xbox",
+                20: "Nintendo DS",
+                7: "PlayStation",
+                14: "GameCube",
+                3: "Linux",
+                162: "Oculus VR",
+                165: "PlayStation VR"
+            };
+            return platformMap[platformId] || null;
+        }
+
+        function showMessage(message) {
+            const existingMessage = document.querySelector('.message-overlay');
+            if (existingMessage) {
+                existingMessage.remove();
+                clearTimeout(messageTimeout);
+            }
+
+            const overlay = document.createElement('div');
+            overlay.className = 'message-overlay';
+            overlay.textContent = message;
+            document.body.appendChild(overlay);
+
+            messageTimeout = setTimeout(() => {
+                overlay.remove();
+            }, 3000);
+        }
+
+        function closeAddGameModal() {
+            addGameModal.style.display = 'none';
+            searchGameInput.value = '';
+            searchResults.innerHTML = ''; 
+            document.getElementById('closeSearchResults').style.display = 'none';
+        }
+
+        function getRandomPastelColor() {
+            const hue = Math.floor(Math.random() * 360);
+            const saturation = 70 + Math.random() * 10;
+            const lightness = 60 + Math.random() * 10;
+            return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
         }
 
         function showPreviewOrTitle(e, game) {
@@ -2053,20 +2635,21 @@
             preview.style.opacity = '1';
             preview.style.display = 'block';
             const img = preview.querySelector('img');
-            img.src = game.imageUrl;
-            img.onload = () => {
-                const aspectRatio = img.naturalWidth / img.naturalHeight;
-                const maxWidth = window.innerWidth * 0.65;
-                const maxHeight = window.innerHeight * 0.645;
-                let width = maxWidth;
-                let height = width / aspectRatio;
-                if (height > maxHeight) {
-                    height = maxHeight;
-                    width = height * aspectRatio;
-                }
-                img.style.width = `${width}px`;
-                img.style.height = `${height}px`;
-                
+            const abbreviationPlaceholder = preview.querySelector('.abbreviation-placeholder') || document.createElement('div');
+            abbreviationPlaceholder.className = 'abbreviation-placeholder';
+            
+            if (game.imageUrl) {
+                img.src = game.imageUrl;
+                img.style.display = 'block';
+                abbreviationPlaceholder.style.display = 'none';
+            } else {
+                img.style.display = 'none';
+                abbreviationPlaceholder.innerHTML = `<span style="color: ${game.color};">${game.name}</span>`;
+                abbreviationPlaceholder.style.display = 'flex';
+                preview.querySelector('.preview-content').appendChild(abbreviationPlaceholder);
+            }
+
+            const updatePreviewPosition = () => {
                 const previewRect = preview.getBoundingClientRect();
                 const margin = window.innerWidth * 0.05;
                 
@@ -2086,12 +2669,36 @@
                     preview.style.right = '5%';
                 }
             };
-            preview.querySelector('p').textContent = `${game.name} (${game.year})`;
+
+            if (game.imageUrl) {
+                img.onload = () => {
+                    const aspectRatio = img.naturalWidth / img.naturalHeight;
+                    const maxWidth = window.innerWidth * 0.65;
+                    const maxHeight = window.innerHeight * 0.645;
+                    let width = maxWidth;
+                    let height = width / aspectRatio;
+                    if (height > maxHeight) {
+                        height = maxHeight;
+                        width = height * aspectRatio;
+                    }
+                    img.style.width = `${width}px`;
+                    img.style.height = `${height}px`;
+                    
+                    updatePreviewPosition();
+                };
+            } else {
+                abbreviationPlaceholder.style.width = '200px';
+                abbreviationPlaceholder.style.height = '300px';
+                updatePreviewPosition();
+            }
+
+            const yearText = game.year ? ` (${game.year})` : '';
+            preview.querySelector('p').textContent = `${game.name}${yearText}`;
             startPreviewTimeout();
         }
 
         function showGameTitle(e, game) {
-            gameTitle.innerHTML = `${game.name}<span class="game-year">(${game.year})</span>`;
+            gameTitle.innerHTML = `${game.name}<span class="game-year">${game.year ? `(${game.year})` : ''}</span>`;
             gameTitle.style.display = 'block';
             
             const titleRect = gameTitle.getBoundingClientRect();
@@ -2149,7 +2756,6 @@
             updateAllCellSizes();
             updateInProgressRow();
 
-            // Принудительно вызываем reflow
             void grid.offsetHeight;
         }
 
@@ -2170,6 +2776,11 @@
                 cell.style.width = `${size}px`;
                 cell.style.height = `${size * 1.33}px`;
             }
+            
+            const abbreviationPlaceholder = cell.querySelector('.abbreviation-placeholder');
+            if (abbreviationPlaceholder) {
+                abbreviationPlaceholder.style.fontSize = `${size * 0.15}px`;
+            }
         }
 
         function togglePreview() {
@@ -2185,13 +2796,21 @@
             inProgressMode = !inProgressMode;
             inProgressButton.classList.toggle('active', inProgressMode);
             
-            // Сохраняем текущее состояние поиска
             const currentSearchValue = searchInput.value.toLowerCase().trim();
             
-            updateAllCells();
+            document.querySelectorAll('.cell').forEach(cell => {
+                const game = games.find(g => g.id === parseInt(cell.dataset.gameId));
+                cell.classList.remove('completed', 'in-progress');
+                if (game.completed) {
+                    cell.classList.add('completed');
+                } else if (game.inProgress) {
+                    cell.classList.add('in-progress');
+                }
+            });
+
             updateInProgressRow();
-            
-            // Применяем поиск снова, если есть текущий запрос
+            updateSaturation();
+
             if (currentSearchValue) {
                 document.querySelectorAll('.cell').forEach(cell => {
                     const gameName = cell.title.toLowerCase();
@@ -2205,16 +2824,19 @@
         }
 
         function toggleHideCompleted() {
+            if (completedFilter.classList.contains('active')) {
+                return;
+            }
             hideCompleted = !hideCompleted;
-            hideCompletedButton.classList.toggle('active', hideCompleted);
-            document.querySelectorAll('.cell.completed').forEach(cell => {
-                cell.classList.toggle('hidden', hideCompleted);
-            });
-            localStorage.setItem('hideCompleted', JSON.stringify(hideCompleted));
+            hideCompletedButton.classList.toggle('active');
+            localStorage.setItem('hideCompleted', hideCompleted);
+            applyFilters();
+            completedFilter.classList.toggle('button-disabled', hideCompleted);
         }
 
         function resetProgress() {
-            if (confirm('Вы уверены, что хотите сбросить весь прогрес?')) {
+            if (confirm('Вы уверены, что хотите сбросить весь прогресс?')) {
+                const currentSaturation = saturationSlider.value;
                 games.forEach(game => {
                     game.completed = false;
                     game.inProgress = false;
@@ -2225,10 +2847,6 @@
                 
                 document.querySelectorAll('.cell').forEach(cell => {
                     cell.classList.remove('completed', 'in-progress');
-                    const img = cell.querySelector('img');
-                    if (img) {
-                        img.style.filter = `saturate(${saturationSlider.value}%)`;
-                    }
                 });
 
                 updateInProgressRow();
@@ -2241,52 +2859,22 @@
                     }
                 });
 
+                inProgressRow.innerHTML = '';
+                updateInProgressRow();
+                applyFilters();
                 updateCounter();
                 updateProgressBar();
                 
-                // Сброс поиска
                 searchInput.value = '';
                 searchGames();
+
+                saturationSlider.value = currentSaturation;
+                updateSaturation();
+                saveGames();
             }
         }
 
-        function checkMilestone() {
-            const milestones = {
-                20: 'Похоже ты знаешь ка нажимать на кнопки',
-                50: 'Уже 50? Мама будет гордитьс. Наверно.',
-                75: '75! А ты нелох',
-                100: '100! Малекий GAMER',
-                125: 'Постонный гость в мире пикселей. Тебя там уже знают по имени?',
-                150: '150! Воу воу, полегче',
-                175: 'Говорят, на этом овне уже становятся стримерами. Страшно...',
-                200: 'Теперь т можешь официально игнорировать любые социальные пригаеия.',
-                300: 'GAMER',
-                350: 'Чем пахнет? А, это тв социальная жизнь леет.',
-                400: 'Игры пойдены, но где твоя личня жизнь?',
-                450: 'Врачи предупежаю: избыток пикселе вреен.',
-                500: 'Ты теперь — часть мебели. Поздравляе!',
-                550: 'Твой экран устал. Дай ему выходной.',
-                600: 'Потрогай ТРАВУ',
-                650: 'Твоя виртуальная жизнь успешнее реальной. Это достижение?',
-                700: 'Get some help',
-                800: 'Achievement Unlocked: No life',
-                1000: 'TRUE GAMER'
-            };
-
-            if (milestones[completedGames]) {
-                showMilestone(milestones[completedGames]);
-            }
-        }
-
-        function showMilestone(text) {
-            milestone.textContent = text;
-            milestone.style.display = 'block';
-            setTimeout(() => {
-                milestone.style.display = 'none';
-            }, 3000);
-        }
-
-        function searchGames(applyFilter = false) {
+        function searchGames() {
             const searchTerm = searchInput.value.toLowerCase().trim();
             document.querySelectorAll('.cell').forEach(cell => {
                 const gameName = cell.title.toLowerCase();
@@ -2302,18 +2890,18 @@
             updateInProgressRow();
         }
 
+        let currentSearchTerm = '';
 
-        function handleSearchKeyPress(event) {
-            if (event.key === 'Enter') {
-                event.preventDefault();
-                searchGames(true);
-            }
+        function handleSearch() {
+            currentSearchTerm = searchInput.value.trim();
+            applyFilters();
         }
 
         function clearSearch() {
             searchInput.value = '';
-            searchGames();
+            currentSearchTerm = '';
             applyFilters();
+            updateCounter();
         }
 
         function populateFilters() {
@@ -2321,18 +2909,24 @@
             const platforms = [...new Set(games.flatMap(game => game.platforms))].sort();
             const genres = [...new Set(games.flatMap(game => game.genres))].sort();
 
-            minYear = savedMinYear ? parseInt(savedMinYear) : years[0];
+            minYear = savedMinYear ? Math.max(parseInt(savedMinYear), 1980) : Math.max(years[0], 1980);
             maxYear = savedMaxYear ? parseInt(savedMaxYear) : years[years.length - 1];
 
-            yearSliderMin.min = years[0];
+            yearSliderMin.min = 1980;
             yearSliderMin.max = years[years.length - 1];
             yearSliderMin.value = minYear;
-            yearSliderMax.min = years[0];
+            yearSliderMax.min = 1980;
             yearSliderMax.max = years[years.length - 1];
             yearSliderMax.value = maxYear;
             updateYearValue();
 
-            platforms.forEach(platform => {
+            platformsList.innerHTML = '';
+            genresList.innerHTML = '';
+
+            const uniquePlatforms = [...new Set(platforms)];
+            const uniqueGenres = [...new Set(genres)];
+
+            uniquePlatforms.forEach(platform => {
                 const checkbox = document.createElement('input');
                 checkbox.type = 'checkbox';
                 checkbox.id = `platform-${platform}`;
@@ -2355,7 +2949,7 @@
                 platformsList.appendChild(document.createElement('br'));
             });
 
-            genres.forEach(genre => {
+            uniqueGenres.forEach(genre => {
                 const checkbox = document.createElement('input');
                 checkbox.type = 'checkbox';
                 checkbox.id = `genre-${genre}`;
@@ -2387,55 +2981,40 @@
             localStorage.setItem('maxYear', maxYear);
         }
 
-        function updateInProgressRow() {
-            const inProgressGames = games.filter(game => game.inProgress);
-            
-            inProgressRow.innerHTML = '';
-            
-            inProgressGames.sort((a, b) => a.number - b.number);
-            
-            inProgressGames.forEach(game => {
-                const cell = createCell(game);
-                cell.classList.add('in-progress');
-                inProgressRow.appendChild(cell);
-            });
-            
-            if (inProgressGames.length > 0) {
-                inProgressRow.style.display = 'flex';
-            } else {
-                inProgressRow.style.display = 'none';
-            }
-            
-            updateAllCellSizes();
-            updateAllCellSaturations();
-        }
-
         function shouldShowGame(game) {
-            const minSelectedYear = parseInt(yearSliderMin.value);
+            const minSelectedYear = Math.max(parseInt(yearSliderMin.value), 1980);
             const maxSelectedYear = parseInt(yearSliderMax.value);
-            const yearMatch = game.year >= minSelectedYear && game.year <= maxSelectedYear;
+            const yearMatch = game.year === null || game.year === undefined || (game.year >= minSelectedYear && game.year <= maxSelectedYear);
             const platformMatch = selectedPlatforms.length === 0 || game.platforms.some(platform => selectedPlatforms.includes(platform));
             const genreMatch = selectedGenres.length === 0 || game.genres.some(genre => selectedGenres.includes(genre));
             const completedMatch = !completedFilter.classList.contains('active') || game.completed;
-            return yearMatch && platformMatch && genreMatch && completedMatch;
+            const hideCompletedMatch = !hideCompleted || !game.completed;
+            return yearMatch && platformMatch && genreMatch && completedMatch && hideCompletedMatch;
         }
 
         function applyFilters() {
-            const currentSearchValue = searchInput.value.toLowerCase().trim();
-            games.forEach(game => {
-                const cell = document.querySelector(`.cell[title="${game.name}"]`);
-                if (cell) {
-                    const shouldShow = shouldShowGame(game) && 
-                                       (currentSearchValue === '' || game.name.toLowerCase().includes(currentSearchValue));
-                    cell.style.display = shouldShow ? '' : 'none';
+            const searchTerm = currentSearchTerm.toLowerCase();
+            document.querySelectorAll('.cell').forEach(cell => {
+                const gameId = cell.getAttribute('data-game-id');
+                const game = games.find(g => g.id.toString() === gameId);
+                
+                if (game && shouldShowGame(game) && (searchTerm === '' || game.name.toLowerCase().includes(searchTerm))) {
+                    cell.style.display = '';
+                } else {
+                    cell.style.display = 'none';
                 }
             });
             updateInProgressRow();
+            updateSaturation();
         }
 
         function toggleCompletedFilter() {
-            const isActive = completedFilter.classList.toggle('active');
+            if (hideCompleted) {
+                return;
+            }
+            completedFilter.classList.toggle('active');
             applyFilters();
+            hideCompletedButton.classList.toggle('button-disabled', completedFilter.classList.contains('active'));
         }
 
         let currentRandomGame = null;
@@ -2451,6 +3030,15 @@
             showRandomSelection(randomGame);
         }
 
+        document.getElementById('wantToPlayButton').onclick = function() {
+            if (currentRandomGame) {
+                currentRandomGame.inProgress = true;
+                saveGames();
+                updateInProgressRow();
+                hideRandomSelection();
+            }
+        };
+
         function showRandomSelection(game) {
             const randomCell = document.querySelector(`.cell[data-game-id="${game.id}"]`);
             
@@ -2458,17 +3046,30 @@
                 cell.style.display = 'none';
             });
             
-            const img = randomCell.querySelector('img');
+            let imgSrc = game.image_url || game.imageUrl;
+            let content;
+            if (!imgSrc) {
+                const displayText = game.name;
+                content = `
+                    <div class="abbreviation-placeholder" style="width: 200px; height: 300px; display: flex; justify-content: center; align-items: center; font-size: 48px; background-color: #333;">
+                        <span style="color: ${game.color};">${displayText}</span>
+                    </div>
+                `;
+            } else {
+                content = `<img src="${imgSrc}" alt="${game.name}">`;
+            }
+            
+            const yearText = game.year ? ` (${game.year})` : '';
             randomSelected.innerHTML = `
-                <img src="${img.src}" alt="${game.name}">
-                <p>${game.name} (${game.year})</p>
+                ${content}
+                <p>${game.name}${yearText}</p>
             `;
             randomSelectedContainer.style.display = 'flex';
             
             const isLastOfUs2 = game.name.toLowerCase().includes('the last of us part ii');
             
             document.getElementById('dontWantButton').textContent = isLastOfUs2 ? 'Да ну нафиг' : 'Не хочу';
-            document.getElementById('wantToPlayButton').textContent = isLastOfUs2 ? 'Ну, с огом' : 'Хочу пройти!';
+            document.getElementById('wantToPlayButton').textContent = isLastOfUs2 ? 'Ну, с богом' : 'Хочу пройти!';
             document.getElementById('anotherRandomButton').textContent = isLastOfUs2 ? 'Давай может другую, а?' : 'Давай другую';
             
             document.getElementById('topButtons').style.display = 'flex';
@@ -2476,15 +3077,18 @@
             
             document.getElementById('wantToPlayButton').onclick = () => {
                 game.inProgress = true;
-                randomCell.classList.add('in-progress');
-                if (randomCell.parentElement === grid) {
-                    grid.removeChild(randomCell);
+                if (randomCell) {
+                    randomCell.classList.add('in-progress');
+                    if (randomCell.parentElement === grid) {
+                        grid.removeChild(randomCell);
+                    }
+                    inProgressRow.appendChild(randomCell);
                 }
-                inProgressRow.appendChild(randomCell);
                 hideRandomSelection();
                 updateInProgressRow();
-                saveInProgressGames();
-                currentRandomGame = null; // Сбрасываем текущую случайную игру
+                saveGames();
+                randomSelectedContainer.style.display = 'none';
+                currentRandomGame = null;
             };
             
             document.getElementById('dontWantButton').onclick = () => {
@@ -2499,21 +3103,27 @@
             
             setTimeout(() => {
                 const selectedImg = randomSelected.querySelector('img');
+                const abbreviationPlaceholder = randomSelected.querySelector('.abbreviation-placeholder');
                 const containerWidth = (randomSelectedContainer.clientWidth - 40) * 1.5;
                 const containerHeight = (randomSelectedContainer.clientHeight - 200) * 1.5;
-                const imgAspectRatio = selectedImg.naturalWidth / selectedImg.naturalHeight;
                 
-                if (selectedImg.naturalWidth > containerWidth || selectedImg.naturalHeight > containerHeight) {
-                    if (containerWidth / imgAspectRatio <= containerHeight) {
-                        selectedImg.style.width = '150%';
-                        selectedImg.style.height = 'auto';
+                if (abbreviationPlaceholder) {
+                    abbreviationPlaceholder.style.width = '200px';
+                    abbreviationPlaceholder.style.height = '300px';
+                } else if (selectedImg) {
+                    const imgAspectRatio = selectedImg.naturalWidth / selectedImg.naturalHeight;
+                    if (selectedImg.naturalWidth > containerWidth || selectedImg.naturalHeight > containerHeight) {
+                        if (containerWidth / imgAspectRatio <= containerHeight) {
+                            selectedImg.style.width = '150%';
+                            selectedImg.style.height = 'auto';
+                        } else {
+                            selectedImg.style.width = 'auto';
+                            selectedImg.style.height = `${containerHeight}px`;
+                        }
                     } else {
-                        selectedImg.style.width = 'auto';
-                        selectedImg.style.height = `${containerHeight}px`;
+                        selectedImg.style.width = `${selectedImg.naturalWidth * 1.5}px`;
+                        selectedImg.style.height = `${selectedImg.naturalHeight * 1.5}px`;
                     }
-                } else {
-                    selectedImg.style.width = `${selectedImg.naturalWidth * 1.5}px`;
-                    selectedImg.style.height = `${selectedImg.naturalHeight * 1.5}px`;
                 }
             }, 0);
         }
@@ -2528,47 +3138,7 @@
             applyFilters();
         }
 
-        function updateSaturation() {
-            const saturation = saturationSlider.value;
-            document.querySelectorAll('.cell:not(.completed) img').forEach(img => {
-                img.style.filter = `saturate(${saturation}%)`;
-            });
-            document.querySelectorAll('.cell.completed img').forEach(img => {
-                if (saturation < 100) {
-                    img.style.filter = 'none';
-                } else {
-                    img.style.filter = 'brightness(85%)';
-                }
-            });
-        }
-
-        function updateCellSaturation(cell, isCompleted) {
-            const saturation = saturationSlider.value;
-            const img = cell.querySelector('img');
-            if (isCompleted) {
-                if (saturation < 100) {
-                    img.style.filter = 'none';
-                    cell.classList.remove('completed-darkened');
-                } else {
-                    img.style.filter = 'brightness(85%)';
-                    cell.classList.add('completed-darkened');
-                }
-            } else {
-                img.style.filter = `saturate(${saturation}%)`;
-                cell.classList.remove('completed-darkened');
-            }
-        }
-
-        function updateAllCellSaturations() {
-            document.querySelectorAll('.cell').forEach(cell => {
-                const isCompleted = cell.classList.contains('completed');
-                updateCellSaturation(cell, isCompleted);
-            });
-        }
-
         function resetFilters() {
-            console.log("Сброс фильтров начат");
-
             yearSliderMin.value = yearSliderMin.min;
             yearSliderMax.value = yearSliderMax.max;
             updateYearValue();
@@ -2584,29 +3154,34 @@
             selectedGenres = [];
 
             completedFilter.classList.remove('active');
+            hideCompletedButton.classList.remove('active');
+            hideCompleted = false;
+
+            completedFilter.classList.remove('button-disabled');
+            hideCompletedButton.classList.remove('button-disabled');
 
             localStorage.removeItem('selectedPlatforms');
             localStorage.removeItem('selectedGenres');
             localStorage.removeItem('minYear');
             localStorage.removeItem('maxYear');
+            localStorage.removeItem('hideCompleted');
             
             const currentSaturation = saturationSlider.value;
             
-            // Сброс поиска
             searchInput.value = '';
             searchGames();
+            
+            document.querySelectorAll('.cell').forEach(cell => {
+                cell.style.display = '';
+                cell.classList.remove('hidden');
+            });
             
             applyFilters();
             
             saturationSlider.value = currentSaturation;
             updateSaturation();
-
             updateCounter();
             updateInProgressRow();
-
-            filtersPanel.style.display = 'none';
-
-            console.log("Сброс фильтров завершен");
         }
 
         function showAuthorCredit() {
@@ -2649,9 +3224,14 @@
             resetProgress();
             hideRandomSelection();
         });
-        searchInput.addEventListener('input', searchGames);
-        searchInput.addEventListener('input', () => searchGames(false));
-        searchInput.addEventListener('keypress', handleSearchKeyPress);
+
+        searchInput.addEventListener('input', handleSearch);
+        searchInput.addEventListener('blur', () => {
+            if (searchInput.value.trim() === '') {
+                currentSearchTerm = '';
+                applyFilters();
+            }
+        });
         clearSearchButton.addEventListener('click', clearSearch);
         filtersButton.addEventListener('click', (event) => {
             event.stopPropagation();
@@ -2695,8 +3275,9 @@
         updateInProgressRow();
 
         const resetFiltersButtonHeader = document.getElementById('resetFiltersButtonHeader');
-        resetFiltersButtonHeader.addEventListener('click', function() {
-            console.log("Кнопка сброса фильтов в шапке нажата");
+        resetFiltersButtonHeader.addEventListener('click', function(event) {
+            console.log("Кнопка сброса фильтров в шапке нажата");
+            event.stopPropagation(); 
             resetFilters();
         });
 
@@ -2713,8 +3294,779 @@
             }, 100);
         });
 
-        // В конце скрипта, после всех инициализаций
         window.dispatchEvent(new Event('resize'));
+
+        const addGameButton = document.getElementById('addGameButton');
+        const customGameListButton = document.getElementById('customGameListButton');
+        const addGameModal = document.getElementById('addGameModal');
+        const customGameListModal = document.getElementById('customGameListModal');
+        const addGameForm = document.getElementById('addGameForm');
+        const customGameList = document.getElementById('customGameList');
+
+        let customGames = JSON.parse(localStorage.getItem('customGames')) || [];
+      
+        function deleteAllApiGames() {
+            if (confirm('Вы уверены, что хотите удалить все добавленные игры?')) {
+                const initialCount = games.length;
+                games = games.filter(game => !game.isCustom && !game.importedFromApi);
+                const deletedCount = initialCount - games.length;
+                
+                const cells = document.querySelectorAll('.cell');
+                cells.forEach(cell => {
+                    const gameId = cell.getAttribute('data-game-id');
+                    const game = games.find(g => g.id.toString() === gameId);
+                    if (!game) {
+                        cell.remove();
+                    }
+                });
+
+                saveGames();
+                
+                completedGames = games.filter(game => game.completed).length;
+                updateCounter();
+                populateFilters();
+                applyFilters();
+                
+                console.log(`Удалено ${deletedCount} добавленных игр`);
+               
+                updateCustomGameList();
+            }
+        }
+
+        const deleteAllApiGamesButton = document.getElementById('deleteAllApiGamesButton');
+        if (deleteAllApiGamesButton) {
+            deleteAllApiGamesButton.addEventListener('click', deleteAllApiGames);
+        }
+
+        function closeModal(modal) {
+            modal.style.display = 'none';
+            if (modal === addGameModal) {
+                resetAddGameForm();
+            }
+        }
+
+        document.querySelectorAll('.close').forEach(closeBtn => {
+            closeBtn.addEventListener('click', () => {
+                if (closeBtn.closest('.modal') === addGameModal) {
+                    closeAddGameModal();
+                } else {
+                    closeModal(closeBtn.closest('.modal'));
+                }
+            });
+        });
+
+        window.addEventListener('click', (event) => {
+            if (event.target.classList.contains('modal')) {
+                if (event.target === addGameModal) {
+                    closeAddGameModal();
+                } else {
+                    closeModal(event.target);
+                }
+            }
+        });
+
+        addGameButton.addEventListener('click', () => {
+            addGameModal.style.display = 'block';
+        });
+
+        customGameListButton.addEventListener('click', () => {
+            updateCustomGameList();
+            customGameListModal.style.display = 'block';
+        });
+
+        let isEditing = false;
+        let editingGameId = null;
+
+        function handleFormSubmit(e) {
+            e.preventDefault();
+            const name = document.getElementById('gameName').value.trim();
+            
+            if (!name) {
+                alert('Название игры обязательно для заполнения');
+                return;
+            }
+            
+            if (!isEditing && isNameOrAbbreviationExists(name, '')) {
+                alert('Игра с таким или похожим названием, или её ремейк/ремастер уже существует');
+                return;
+            }
+            
+            const gameData = {
+                id: isEditing ? editingGameId : Date.now(),
+                name: name,
+                year: parseInt(document.getElementById('gameYear').value) || null,
+                platforms: document.getElementById('gamePlatforms').value.split(',').map(p => p.trim()).filter(p => p),
+                genres: document.getElementById('gameGenres').value.split(',').map(g => g.trim()).filter(g => g),
+                imageUrl: document.getElementById('gameImageUrl').value.trim() || null,
+                isCustom: true,
+                importedFromApi: false,
+                completed: false,
+                inProgress: false,
+                color: getRandomPastelColor()
+            };
+            
+            if (isEditing) {
+                updateGame(editingGameId, gameData);
+            } else {
+                addNewGame(gameData);
+            }
+            
+            closeModal(addGameModal);
+            resetAddGameForm();
+        }
+
+        function addNewGame(gameData) {            
+            const existingGame = findExistingGame(gameData);
+            if (existingGame) {
+                console.log('Найдена существующая версия игры:', existingGame.name);
+                if (gameData.name.length < existingGame.name.length) {
+                    Object.assign(existingGame, gameData);
+                    updateGameCell(existingGame);
+                } else {
+                }
+            } else {
+                const newGame = {
+                    id: Date.now(),
+                    ...gameData,
+                    isCustom: true,
+                    importedFromApi: gameData.importedFromApi || false,
+                    completed: false,
+                    inProgress: false,
+                    color: getRandomPastelColor()
+                };
+                games.push(newGame);
+                const cell = createCell(newGame);
+                grid.appendChild(cell);
+            }
+
+            saveGames();
+            updateCounter();
+            populateFilters();
+            applyFilters();
+            updateGridSize();
+        }
+
+        document.getElementById('addGameForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const name = document.getElementById('gameName').value.trim();
+            
+            if (!name) {
+                alert('Название игры обязательно для заполнения');
+                return;
+            }
+            
+            const gameData = {
+                name: name,
+                year: parseInt(document.getElementById('gameYear').value) || null,
+                platforms: document.getElementById('gamePlatforms').value.split(',').map(p => p.trim()).filter(p => p),
+                genres: document.getElementById('gameGenres').value.split(',').map(g => g.trim()).filter(g => g),
+                imageUrl: document.getElementById('gameImageUrl').value.trim() || null,
+            };
+            
+            addNewGame(gameData);
+            
+            closeModal(addGameModal);
+            this.reset();
+        });
+
+        function updateGame(gameId, gameData) {
+            const game = customGames.find(g => g.id.toString() === gameId);
+            if (game) {
+                Object.assign(game, gameData);
+                localStorage.setItem('customGames', JSON.stringify(customGames));
+                updateCustomGameList();
+                updateGameCell(game);
+            }
+        }
+
+        function editCustomGame(gameId) {
+            const game = customGames.find(g => g.id.toString() === gameId);
+            if (game) {
+                document.getElementById('gameName').value = game.name;
+                document.getElementById('gameYear').value = game.year || '';
+                document.getElementById('gamePlatforms').value = game.platforms.join(', ');
+                document.getElementById('gameGenres').value = game.genres.join(', ');
+                document.getElementById('gameImageUrl').value = game.imageUrl || '';
+                
+                document.querySelector('#addGameModal h2').textContent = 'Редактировать игру';
+                
+                document.querySelector('#addGameForm button[type="submit"]').textContent = 'Сохранить';
+                
+                addGameModal.style.display = 'block';
+                customGameListModal.style.display = 'none';
+                
+                isEditing = true;
+                editingGameId = gameId;
+            }
+        }
+
+        function resetAddGameForm() {
+            document.getElementById('gameName').value = '';
+            document.getElementById('gameYear').value = '';
+            document.getElementById('gamePlatforms').value = '';
+            document.getElementById('gameGenres').value = '';
+            document.getElementById('gameImageUrl').value = '';
+            
+            document.querySelector('#addGameModal h2').textContent = 'Добавить новую игру';
+            document.querySelector('#addGameForm button[type="submit"]').textContent = 'Добавить';
+            
+            isEditing = false;
+            editingGameId = null;
+        }
+
+        addGameForm.addEventListener('submit', handleFormSubmit);
+
+        function createCell(game) {
+            const cell = document.createElement('div');
+            cell.className = 'cell';
+            cell.dataset.gameId = game.id.toString();
+            if (game.completed) {
+                cell.classList.add('completed');
+            }
+            if (game.inProgress) {
+                cell.classList.add('in-progress');
+            }
+            if (game.isCustom) {
+                cell.classList.add('custom-game');
+            }
+    
+            let img;
+            if (game.imageUrl) {
+                img = document.createElement('img');
+                img.src = game.imageUrl;
+                img.alt = game.name;
+                const currentSaturation = saturationSlider.value;
+                img.style.filter = `saturate(${currentSaturation}%)`;
+                cell.appendChild(img);
+            } else {
+                const color = game.color || getRandomPastelColor();
+                if (!game.color) {
+                    game.color = color;
+                }
+                const placeholder = document.createElement('div');
+                placeholder.className = 'abbreviation-placeholder';
+                placeholder.innerHTML = `<span style="color: ${color};">${game.name}</span>`;
+                cell.appendChild(placeholder);
+            }
+    
+            cell.title = game.name;
+            cell.addEventListener('click', () => toggleCell(cell, game.id));
+            cell.addEventListener('mousemove', (e) => showPreviewOrTitle(e, game));
+            cell.addEventListener('mouseleave', hidePreviewAndTitle);
+    
+            updateCellSize(cell, game.inProgress);
+    
+            return cell;
+        }
+
+
+        function removeGameCell(gameId) {
+            const cell = document.querySelector(`.cell[data-game-id="${gameId}"]`);
+            if (cell) {
+                cell.remove();
+            }
+        }
+
+        function getRandomPastelColor() {
+            const hue = Math.floor(Math.random() * 360);
+            const saturation = 70 + Math.random() * 10;
+            const lightness = 60 + Math.random() * 10;
+            return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+        }
+
+        function updateCustomGameList() {
+            customGameList.innerHTML = '';
+            const searchTerm = document.getElementById('customGameSearchInput').value.toLowerCase();
+            
+            games.forEach(game => {
+                if (game.name.toLowerCase().includes(searchTerm)) {
+                    const gameElement = document.createElement('div');
+                    gameElement.className = 'custom-game-item';
+                    gameElement.innerHTML = `
+                        <span>${game.name}</span>
+                        <div>
+                            <button class="delete-game" data-id="${game.id}">Удалить</button>
+                        </div>
+                    `;
+                    customGameList.appendChild(gameElement);
+                }
+            });
+            
+            customGameList.removeEventListener('click', customGameListClickHandler);
+            customGameList.addEventListener('click', customGameListClickHandler);
+        }
+
+        document.getElementById('customGameSearchInput').addEventListener('input', updateCustomGameList);
+
+        function customGameListClickHandler(e) {
+            if (e.target.classList.contains('delete-game')) {
+                const gameId = e.target.dataset.id;
+                if (gameId) {
+                    deleteGame(gameId);
+                } else {
+                    console.error('ID игры не найден');
+                }
+            }
+        }
+
+        function deleteGame(gameId) {
+            console.log('Попытка удаления игры с ID:', gameId);
+            if (gameId && confirm('Вы уверены, что хотите удалить эту игру?')) {
+                games = games.filter(g => g.id.toString() !== gameId.toString());
+                localStorage.setItem('games', JSON.stringify(games));
+                
+                const cellToRemove = document.querySelector(`.cell[data-game-id="${gameId}"]`);
+                if (cellToRemove) {
+                    cellToRemove.remove();
+                } else {
+                }
+                
+                updateCustomGameList();
+                updateCounter();
+                populateFilters();
+                applyFilters();
+                updateGridSize();
+            }
+        }
+
+        function updateGameCell(game) {
+            const cell = document.querySelector(`.cell[data-game-id="${game.id}"]`);
+            if (cell) {
+                cell.title = game.name;
+                if (game.imageUrl) {
+                    cell.innerHTML = `<img src="${game.imageUrl}" alt="${game.name}">`;
+                } else {
+                    cell.innerHTML = `<div class="abbreviation-placeholder"><span style="color: ${game.color};">${getAbbreviation(game.name)}</span></div>`;
+                }
+                updateCellSize(cell, game.inProgress);
+            }
+        }
+
+        function loadCustomGames() {
+            customGames.forEach(game => {
+                if (!games.some(g => g.id === game.id)) {
+                    games.push(game);
+                    const cell = createCell(game);
+                    grid.appendChild(cell);
+                }
+            });
+            updateGridSize();
+            populateFilters();
+            applyFilters();
+        }
+
+        loadCustomGames();
+
+        function updateSaturation() {
+            const saturation = saturationSlider.value;
+            document.documentElement.style.setProperty('--saturation', `${saturation}%`);
+            document.querySelectorAll('.cell:not(.in-progress) img').forEach(img => {
+                img.classList.add('saturated');
+                img.style.filter = `saturate(var(--saturation))`;
+            });
+            localStorage.setItem('saturation', saturation);
+        }
+
+        function normalizeGameName(name) {
+            return name.toLowerCase()
+                .normalize('NFD').replace(/[\u0300-\u036f]/g, "")
+                .replace(/[^a-z0-9\s]/g, '')
+                .replace(/\s+/g, ' ')
+                .replace(/^(the|a|an)\s+/, '')
+                .trim();
+        }
+        function getGameNumber(name) {
+            const match = name.match(/\d+$/);
+            return match ? parseInt(match[0]) : null;
+        }
+
+        function removeVersionSuffixes(name) {
+            const suffixes = [
+                'hd', 'remake', 'remaster', 'remastered', 'definitive edition', 
+                'special edition', 'complete edition', 'directors cut', 
+                'game of the year', 'goty', 'enhanced edition', 'anniversary edition',
+                'collectors edition', 'extended edition', 'gold edition', 'platinum edition'
+            ];
+            const regex = new RegExp(`\\s+(${suffixes.join('|')})(?:\\s+edition)?$`, 'i');
+            return name.replace(regex, '');
+        }
+
+        function isNameOrAbbreviationExists(name, abbreviation, excludeId = null) {
+            const normalizedName = normalizeGameName(name);
+            return games.some(game => {
+                if (game.id === excludeId) return false;
+                
+                const gameNormalizedName = normalizeGameName(game.name);
+                const gameAbbreviation = game.abbreviation ? normalizeGameName(game.abbreviation) : '';
+                const newAbbreviation = abbreviation ? normalizeGameName(abbreviation) : '';
+                
+                return gameNormalizedName === normalizedName || 
+                    (gameAbbreviation && gameAbbreviation === newAbbreviation) ||
+                    levenshteinDistance(gameNormalizedName, normalizedName) <= 2;
+            });
+        }
+
+        function getBaseGameName(name) {
+            return name.toLowerCase()
+                .replace(/[^a-zа-я0-9\s]/g, '')
+                .replace(/\s+/g, ' ')
+                .replace(/^(the|a|an)\s+/, '')
+                .replace(/\s+(hd|remake|remaster|remastered|definitive edition|special edition|complete edition|directors cut|game of the year|goty|enhanced edition|anniversary edition|collectors edition|extended edition|gold edition|platinum edition|premium edition|ultimate edition)(\s+edition)?$/i, '')
+                .trim();
+        }
+
+        function generateGameId(name) {
+            return getBaseGameName(name).replace(/\s+/g, '-');
+        }
+
+        function findExistingGame(newGame) {
+            const normalizedNewName = normalizeGameName(newGame.name);
+            return games.find(game => {
+                const normalizedExistingName = normalizeGameName(game.name);
+                return normalizedExistingName === normalizedNewName || 
+                       levenshteinDistance(normalizedExistingName, normalizedNewName) <= 2;
+            });
+        }
+
+        function isRemakeOrRemaster(existingName, newName) {
+            const normalizedExisting = normalizeGameName(existingName);
+            const normalizedNew = normalizeGameName(newName);
+            return normalizedExisting === normalizedNew || levenshteinDistance(normalizedExisting, normalizedNew) <= 2;
+        }
+
+        function isSpecialVersion(name) {
+            const specialVersions = [
+                'hd', 'remake', 'remaster', 'remastered', 'definitive edition', 
+                'special edition', 'complete edition', 'directors cut', 
+                'game of the year', 'goty', 'enhanced edition', 'anniversary edition',
+                'collectors edition', 'extended edition', 'gold edition', 'platinum edition'
+            ];
+            const regex = new RegExp(`\\b(${specialVersions.join('|')})\\b`, 'i');
+            return regex.test(name);
+        }
+
+        function isDuplicateGame(newGame) {
+            const normalizedNewName = normalizeGameName(newGame.name);
+            const newGameNumber = getGameNumber(newGame.name);            
+            if (isSpecialVersion(newGame.name)) {
+                return true;
+            }
+            
+            const existingGame = games.find(game => {
+                const normalizedExistingName = normalizeGameName(game.name);
+                const existingGameNumber = getGameNumber(game.name);
+
+                const namesMatch = normalizedExistingName === normalizedNewName;
+                const numberMatch = newGameNumber === existingGameNumber;
+
+                if (namesMatch) {
+                }
+
+                return namesMatch && (newGameNumber === null || numberMatch);
+            });
+
+            if (existingGame) {
+                console.log(`"${newGame.name}" уже существует или очень похожа на "${existingGame.name}", пропускаем`);
+                return true;
+            }
+            
+            return false;
+        }
+        function levenshteinDistance(a, b) {
+            if (a.length === 0) return b.length;
+            if (b.length === 0) return a.length;
+
+            const matrix = [];
+
+            for (let i = 0; i <= b.length; i++) {
+                matrix[i] = [i];
+            }
+
+            for (let j = 0; j <= a.length; j++) {
+                matrix[0][j] = j;
+            }
+
+            for (let i = 1; i <= b.length; i++) {
+                for (let j = 1; j <= a.length; j++) {
+                    if (b.charAt(i - 1) === a.charAt(j - 1)) {
+                        matrix[i][j] = matrix[i - 1][j - 1];
+                    } else {
+                        matrix[i][j] = Math.min(
+                            matrix[i - 1][j - 1] + 1,
+                            matrix[i][j - 1] + 1,
+                            matrix[i - 1][j] + 1
+                        );
+                    }
+                }
+            }
+
+            return matrix[b.length][a.length];
+        }
+
+        const selectPlatformsBtn = document.getElementById('selectPlatformsBtn');
+        const selectGenresBtn = document.getElementById('selectGenresBtn');
+        const selectOptionsModal = document.getElementById('selectOptionsModal');
+        const selectOptionsTitle = document.getElementById('selectOptionsTitle');
+        const optionsList = document.getElementById('optionsList');
+        const applyOptionsBtn = document.getElementById('applyOptionsBtn');
+
+        let currentSelectType = '';
+
+        function showSelectOptions(type) {
+            currentSelectType = type;
+            selectOptionsTitle.textContent = type === 'platforms' ? 'Выберите платформы' : 'Выберите жанры';
+            
+            const options = type === 'platforms' 
+                ? [...new Set(games.flatMap(game => game.platforms))]
+                : [...new Set(games.flatMap(game => game.genres))];
+            
+            const inputField = type === 'platforms' ? document.getElementById('gamePlatforms') : document.getElementById('gameGenres');
+            const selectedValues = inputField.value.split(',').map(v => v.trim());
+            
+            optionsList.innerHTML = options.map(option => `
+                <label>
+                    <input type="checkbox" value="${option}" ${selectedValues.includes(option) ? 'checked' : ''}> ${option}
+                </label>
+            `).join('');
+
+            selectOptionsModal.style.display = 'block';
+        }
+
+        customGameListButton.addEventListener('click', () => {
+            updateCustomGameList();
+            customGameListModal.style.display = 'block';
+        });
+
+        document.addEventListener('click', function(event) {
+            if (event.target.id === 'selectPlatformsBtn') {
+                showSelectOptions('platforms');
+            } else if (event.target.id === 'selectGenresBtn') {
+                showSelectOptions('genres');
+            }
+        });
+
+        applyOptionsBtn.addEventListener('click', () => {
+            const selectedOptions = Array.from(optionsList.querySelectorAll('input:checked')).map(input => input.value);
+            const inputField = currentSelectType === 'platforms' ? document.getElementById('gamePlatforms') : document.getElementById('gameGenres');
+            inputField.value = selectedOptions.join(', ');
+            selectOptionsModal.style.display = 'none';
+        });
+
+        selectOptionsModal.querySelector('.close').addEventListener('click', () => {
+            selectOptionsModal.style.display = 'none';
+        });
+
+        window.addEventListener('click', (event) => {
+            if (event.target === selectOptionsModal) {
+                selectOptionsModal.style.display = 'none';
+            }
+        });
+
+        document.addEventListener('click', (event) => {
+            if (event.target.id === 'importFromApiButton' || event.target.id === 'importFromApiModalButton') {
+                importFromIGDB();
+            }
+        });
+
+        let isImporting = false;
+
+        async function importFromIGDB(count) {
+            if (isImporting) {
+                return;
+            }
+
+            isImporting = true;
+            showLoadingMessage();
+            console.log('Начало импорта игр из IGDB');
+            try {
+                const existingIds = games.map(game => game.id.toString());
+                const limit = count || 100;
+                const response = await fetch(`https://nu3ichego5ti2suda7prishel.uhadi.workers.dev/games?existingIds=${existingIds.join(',')}&limit=${limit}`);
+
+                if (!response.ok) {
+                    throw new Error(`Ошибка ответа сервера: ${response.status} ${response.statusText}`);
+                }
+                const newGames = await response.json();
+
+                let addedGames = 0;
+                const maxGamesToAdd = Math.min(limit, 3000 - games.length);
+
+                for (const game of newGames) {
+                    if (addedGames >= maxGamesToAdd) {
+                        break;
+                    }
+                    const newGame = {
+                        id: game.id,
+                        name: game.name,
+                        imageUrl: game.cover ? convertImageUrl(game.cover.url) : '',
+                        year: game.first_release_date ? new Date(game.first_release_date * 1000).getFullYear() : null,
+                        genres: game.genres ? game.genres.map(g => g.name) : [],
+                        platforms: game.platforms ? game.platforms.map(p => getPlatformName(p.id)).filter(p => p !== null) : [],
+                        rating: game.aggregated_rating || game.rating,
+                        isCustom: true,
+                        importedFromApi: true,
+                        completed: false,
+                        inProgress: false
+                    };
+                    if (!isDuplicateGame(newGame)) {
+                        await addNewGameWithDelay(newGame);
+                        addedGames++;
+                    } else {
+                        console.log(`Игра "${newGame.name}" не добавлена`);
+                    }
+                }
+
+                console.log('Импорт завершен успешно');
+                alert(`Импорт завершен. Добавлено ${addedGames} новых игр.`);
+            } catch (error) {
+                console.error('Ошибка при импорте игр из IGDB:', error);
+                alert(`Не удалось импортировать игры: ${error.message}`);
+            } finally {
+                hideLoadingMessage();
+                isImporting = false;
+            }
+        }
+        
+        function addNewGameWithDelay(game) {
+            return new Promise(resolve => {
+                setTimeout(() => {
+                    addNewGame(game);
+                    saveGames();
+                    updateFiltersAndCounter();
+                    resolve();
+                    updateSaturation();
+                }, 10);
+            });
+        }
+
+        function addNewGame(game) {
+            games.push(game);
+            const cell = createCell(game);
+            grid.appendChild(cell);
+            updateGridSize();
+            saveGames();
+            updateFiltersAndCounter();
+            updateSaturation();
+        }
+
+        function convertImageUrl(url) {
+            const baseUrl = 'https://images.igdb.com/igdb/image/upload/t_cover_big/';
+            const fileName = url.split('/').pop();
+            return baseUrl + fileName;
+        }
+
+        function updateFiltersAndCounter() {
+            populateFilters();
+            updateCounter();
+        }
+
+        function chunkArray(array, size) {
+            const chunked = [];
+            for (let i = 0; i < array.length; i += size) {
+                chunked.push(array.slice(i, i + size));
+            }
+            return chunked;
+        }
+
+        function showLoadingMessage() {
+            document.getElementById('loadingOverlay').style.display = 'flex';
+        }
+
+        function hideLoadingMessage() {
+            document.getElementById('loadingOverlay').style.display = 'none';
+        }
+
+        function initializeImportButton() {
+            const importButton = document.getElementById('importFromApiButton');
+            const importModalButton = document.getElementById('importFromApiModalButton');
+            const searchGameModalButton = document.getElementById('searchGameModalButton');
+            const closeSearchResultsButton = document.getElementById('closeSearchResults');
+
+            if (importButton) {
+                importButton.addEventListener('click', () => importFromIGDB(100));
+            } else {
+                console.error('Кнопка импорта в шапке не найдена');
+            }
+
+            if (importModalButton) {
+                importModalButton.addEventListener('click', () => importFromIGDB(100));
+            } else {
+                console.error('Кнопка импорта в модальном окне не найдена');
+            }
+
+            if (searchGameModalButton) {
+                searchGameModalButton.addEventListener('click', () => importFromIGDB(10));
+            } else {
+                console.error('Кнопка поиска игры в модальном окне не найдена');
+            }
+
+            if (closeSearchResultsButton) {
+                closeSearchResultsButton.addEventListener('click', clearSearchResults);
+            } else {
+                console.error('Кнопка очистки результатов поиска не найдена');
+            }
+        }
+
+        function clearSearchResults() {
+            const searchResults = document.getElementById('searchResults');
+            const searchGameInput = document.getElementById('searchGameInput');
+            if (searchResults) {
+                searchResults.innerHTML = '';
+            }
+            if (searchGameInput) {
+                searchGameInput.value = '';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM полностью загружен');
+            initializeImportButton();
+            loadSavedGames();
+            renderGames();
+            updateCounter();
+            populateFilters();
+            applyFilters();
+            updateInProgressRow();
+
+            const addGameButton = document.getElementById('addGameButton');
+            const addGameModal = document.getElementById('addGameModal');
+
+            completedFilter.addEventListener('click', toggleCompletedFilter);
+            hideCompletedButton.addEventListener('click', toggleHideCompleted);
+
+            const performSearchButton = document.getElementById('performSearchButton');        
+            if (performSearchButton) {
+                performSearchButton.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    searchGameFromApi();
+                });
+            }
+
+            const searchGameInput = document.getElementById('searchGameInput');
+            if (searchGameInput) {
+                searchGameInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        searchGameFromApi();
+                    }
+                });
+            }
+            
+            if (addGameButton) {
+                addGameButton.addEventListener('click', () => {
+                    addGameModal.style.display = 'block';
+                });
+            } else {
+                console.error('Кнопка "Добавить игру" в шапке не найдена');
+            }
+
+            const searchGameButton = document.getElementById('searchGameButton');
+
+            const searchInputContainer = document.getElementById('searchInputContainer');
+            if (searchInputContainer) {
+                searchInputContainer.style.display = 'block';
+            }
+        });
     </script>
 </body>
 </html>
