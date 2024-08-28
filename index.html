@@ -2520,7 +2520,12 @@
                 searchResults.innerHTML = '<p>Игры не найдены.</p>';
                 return;
             }
-            games.forEach(game => {
+            
+            const uniqueGames = games.filter((game, index, self) =>
+                index === self.findIndex((t) => t.id === game.id)
+            );
+
+            uniqueGames.forEach(game => {
                 const resultElement = document.createElement('div');
                 resultElement.className = 'search-result';
                 const releaseYear = game.first_release_date ? new Date(game.first_release_date * 1000).getFullYear() : 'N/A';
