@@ -40,10 +40,17 @@ def allowed_platforms(game):
         return False
     return any(pid in ALLOWED_PLATFORMS for pid in [p['id'] if isinstance(p, dict) else p for p in game['platforms']])
 
+def get_enum_id(field):
+    if isinstance(field, dict):
+        return field.get('id')
+    return field
+
 def is_main_game(game):
+    cat_id = get_enum_id(game.get('category'))
+    status_id = get_enum_id(game.get('status'))
     return (
-        game.get('category') == 0 and
-        game.get('status') in (0, 4) and
+        cat_id == 0 and
+        status_id in (0, 4) and
         (game.get('rating_count', 0) >= 12 or game.get('total_rating_count', 0) >= 12)
     )
 
@@ -96,12 +103,12 @@ def main():
 
     main_games.sort(key=lambda g: (
         -get_weighted_rating(g),
-        g.get('status', 0)
+        get_enum_id(g.get('status', 0))
     ))
 
     other_games.sort(key=lambda g: (
         -get_weighted_rating(g),
-        g.get('status', 0)
+        get_enum_id(g.get('status', 0))
     ))
 
     all_sorted = main_games + other_games
