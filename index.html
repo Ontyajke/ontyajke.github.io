@@ -2042,6 +2042,17 @@
         </div>
     </div>
 
+    <div id="syncNoticeModal" class="modal" style="display: none;">
+        <div class="modal-content" style="max-height: 80vh; display: flex; flex-direction: column;">
+            <div id="syncNoticeHeader" style="margin-bottom: 12px; font-size: 18px; font-weight: 700; letter-spacing: .2px; line-height: 1.4; padding: 8px 10px; border-radius: 8px; background: rgba(255,255,255,0.06);"></div>
+            <div id="syncRemovedList" style="flex: 1; overflow: auto; border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; padding: 10px; background: rgba(0,0,0,0.25);"></div>
+            <div class="sync-buttons" style="display: flex; gap: 14px; margin-top: 14px; justify-content: center;">
+                <button id="syncKeepBtn" class="sync-btn-green" style="background-color: #4CAF50; color: #fff; padding: 10px 22px; border: none; border-radius: 6px; font-weight: 700; text-transform: uppercase; letter-spacing: .3px;">Оставить</button>
+                <button id="syncDeleteBtn" class="sync-btn-red" style="background-color: #f44336; color: #fff; padding: 10px 22px; border: none; border-radius: 6px; font-weight: 700; text-transform: uppercase; letter-spacing: .3px;">Удалить</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         window.addEventListener('error', function(e) {
             if (e.target.tagName === 'SCRIPT' || e.target.tagName === 'LINK') {
@@ -3892,6 +3903,8 @@
             
             const newGamesMap = new Map();
             const newGamesByName = new Map();
+            const newGamesByBase = new Map();
+            const removedFromTop = [];
             gamesList.forEach(game => {
                 const formattedGame = {
                     id: game.number,
@@ -3906,13 +3919,14 @@
                 };
                 newGamesMap.set(game.number, formattedGame);
                 newGamesByName.set(formattedGame.name.toLowerCase(), formattedGame);
+                newGamesByBase.set(getBaseKey(formattedGame.name), formattedGame);
             });
             
             
             
             for (const savedGame of currentGames) {
-                if (savedGame.isCustom) {
-                    const duplicateInNewList = newGamesByName.get(savedGame.name.toLowerCase());
+                if (savedGame.isCustom || savedGame.importedFromApi || typeof savedGame.id !== 'number' || savedGame.id <= 0 || savedGame.id > 1000) {
+                    const duplicateInNewList = newGamesByName.get(savedGame.name.toLowerCase()) || newGamesByBase.get(getBaseKey(savedGame.name || ''));
                     
                     if (duplicateInNewList) {
                         console.log(`Найден дубликат: ${savedGame.name} -> заменяем на версию из топ-1000 (позиция ${duplicateInNewList.id})`);
@@ -3926,7 +3940,7 @@
                     }
                 } else {
                     const nameKey = formatGameTitle(savedGame.name || '').toLowerCase();
-                    const byName = newGamesByName.get(nameKey);
+                    const byName = newGamesByName.get(nameKey) || newGamesByBase.get(getBaseKey(savedGame.name || ''));
                     if (byName) {
                         byName.completed = savedGame.completed;
                         byName.inProgress = savedGame.inProgress;
@@ -3934,27 +3948,27 @@
                         newGamesMap.delete(byName.id);
                         newGamesByName.delete(nameKey);
                     } else {
-                            if (savedGame.inProgress || savedGame.completed) {
-                                const newGameAtSamePosition = newGamesMap.get(savedGame.id);
-                                
-                                const customGame = {
-                                    ...savedGame,
-                                    isCustom: true,
+                        if (savedGame.inProgress || savedGame.completed) {
+                            const newGameAtSamePosition = newGamesMap.get(savedGame.id);
+                            
+                            const customGame = {
+                                ...savedGame,
+                                isCustom: true,
                                     id: Date.now() + Math.random(),
-                                    imageUrl: newGameAtSamePosition ? newGameAtSamePosition.imageUrl : savedGame.imageUrl
-                                };
-                                
-                                if (newGameAtSamePosition && savedGame.imageUrl !== newGameAtSamePosition.imageUrl) {
-                                    clearImageFromCache(savedGame.imageUrl);
-                                }
-                                updatedGames.push(customGame);
-                                
-                            } else {
-                                
+                                imageUrl: newGameAtSamePosition ? newGameAtSamePosition.imageUrl : savedGame.imageUrl
+                            };
+                            
+                            if (newGameAtSamePosition && savedGame.imageUrl !== newGameAtSamePosition.imageUrl) {
+                                clearImageFromCache(savedGame.imageUrl);
                             }
+                            updatedGames.push(customGame);
+                            removedFromTop.push(customGame);
+                        } else {
+                                
                         }
                     }
                 }
+            }
             
             for (const [gameId, newGame] of newGamesMap) {
                 
@@ -3963,23 +3977,12 @@
             
 
 
-            const byNameMap = new Map();
+            const byIdMap = new Map();
             for (const g of updatedGames) {
-                const key = formatGameTitle(g.name || '').toLowerCase();
-                if (!byNameMap.has(key)) {
-                    byNameMap.set(key, { ...g });
-                } else {
-                    const existing = byNameMap.get(key);
-                    const preferTop = existing.isCustom && !g.isCustom ? g : existing;
-                    const other = preferTop === existing ? g : existing;
-                    preferTop.completed = (preferTop.completed || false) || (other.completed || false);
-                    preferTop.inProgress = (preferTop.inProgress || false) || (other.inProgress || false);
-                    byNameMap.set(key, preferTop);
-                }
+                const key = (g.id != null ? `id:${g.id}` : `name:${g.name.toLowerCase()}|custom:${g.isCustom ? 1 : 0}`);
+                if (!byIdMap.has(key)) byIdMap.set(key, g);
             }
-            const dedupedGames = Array.from(byNameMap.values());
-
-            state.games = dedupedGames.sort((a, b) => (a.id || 0) - (b.id || 0));
+            state.games = Array.from(byIdMap.values()).sort((a, b) => (a.id || 0) - (b.id || 0));
             games = state.games;
             
             localStorage.setItem('games', JSON.stringify(state.games));
@@ -3989,6 +3992,9 @@
             const _inProgressGames = state.games.filter(game => game.inProgress);
             const _regularGames = state.games.filter(game => !game.inProgress);
             fullRenderGrid(_regularGames, _inProgressGames);
+            if (removedFromTop.length > 0) {
+                showSyncNotice(removedFromTop);
+            }
             Object.entries(filterSnapshot).forEach(([k, v]) => {
                 if (v === null || v === undefined) {
                     localStorage.removeItem(k);
@@ -4015,6 +4021,52 @@
             }
         };
 
+        function showSyncNotice(removedGames) {
+            const modal = document.getElementById('syncNoticeModal');
+            const header = document.getElementById('syncNoticeHeader');
+            const list = document.getElementById('syncRemovedList');
+            const keepBtn = document.getElementById('syncKeepBtn');
+            const delBtn = document.getElementById('syncDeleteBtn');
+
+            header.textContent = `Топ-1000 обновлён. Эти игры больше в него не входят или были заменены. Их можно удалить:`;
+            list.innerHTML = '';
+            removedGames.forEach(g => {
+                const row = document.createElement('div');
+                row.style.display = 'flex';
+                row.style.alignItems = 'center';
+                row.style.gap = '8px';
+                row.style.padding = '4px 0';
+                const img = document.createElement('img');
+                img.src = g.imageUrl || '';
+                img.style.width = '36px';
+                img.style.height = '36px';
+                img.style.objectFit = 'cover';
+                img.style.borderRadius = '6px';
+                const span = document.createElement('span');
+                span.textContent = g.name;
+                row.appendChild(img);
+                row.appendChild(span);
+                list.appendChild(row);
+            });
+
+            keepBtn.onclick = () => {
+                modal.style.display = 'none';
+            };
+
+            delBtn.onclick = () => {
+                const removedIds = new Set(removedGames.map(g => g.id.toString()));
+                state.games = state.games.filter(g => !(g.isCustom && removedIds.has(g.id.toString())));
+                games = state.games;
+                localStorage.setItem('games', JSON.stringify(state.games));
+                modal.style.display = 'none';
+                updateVisibleGames();
+                updateCounter();
+            };
+
+            modal.style.display = 'block';
+            // Отключаем закрытие по клику вне окна
+        }
+
         function simpleHash(str) {
             let hash = 0;
             for (let i = 0; i < str.length; i++) {
@@ -4027,6 +4079,19 @@
             const tail = list.slice(-50);
             const combined = tail.map(g => `${g.number}|${g.title}|${g.year || ''}`).join('|');
             return simpleHash(combined);
+        }
+
+        function getBaseKey(title) {
+            if (!title) return '';
+            let t = title.toLowerCase();
+            let idx = -1;
+            const seps = [':', ' — ', ' – ', ' - '];
+            for (let i = 0; i < seps.length; i++) {
+                const p = t.indexOf(seps[i]);
+                if (p !== -1 && (idx === -1 || p < idx)) idx = p;
+            }
+            const base = idx !== -1 ? t.slice(0, idx) : t;
+            return base.replace(/[^a-z0-9а-яё]+/gi, ' ').trim().replace(/\s+/g, ' ');
         }
 
         function loadSavedGames() {
@@ -6551,6 +6616,18 @@
             updateGridSize();
 
             updateCounter();
+            if (!localStorage.getItem('completedMarksPatched')) {
+                document.querySelectorAll('.cell').forEach(cell => {
+                    const id = cell.getAttribute('data-game-id');
+                    const g = state.games.find(x => x.id.toString() === id);
+                    if (g) {
+                        cell.classList.remove('completed', 'in-progress');
+                        if (g.completed) cell.classList.add('completed');
+                        if (g.inProgress) cell.classList.add('in-progress');
+                    }
+                });
+                localStorage.setItem('completedMarksPatched', 'true');
+            }
 
             updateSaturation();
 
