@@ -3958,13 +3958,9 @@
                             const customGame = {
                                 ...savedGame,
                                 isCustom: true,
-                                    id: Date.now() + Math.random(),
-                                imageUrl: newGameAtSamePosition ? newGameAtSamePosition.imageUrl : savedGame.imageUrl
+                                id: Date.now() + Math.random(),
+                                imageUrl: savedGame.imageUrl || (newGameAtSamePosition ? newGameAtSamePosition.imageUrl : savedGame.imageUrl)
                             };
-                            
-                            if (newGameAtSamePosition && savedGame.imageUrl !== newGameAtSamePosition.imageUrl) {
-                                clearImageFromCache(savedGame.imageUrl);
-                            }
                             updatedGames.push(customGame);
                             removedFromTop.push(customGame);
                         } else {
@@ -4038,7 +4034,7 @@
             const keepBtn = document.getElementById('syncKeepBtn');
             const delBtn = document.getElementById('syncDeleteBtn');
 
-            header.textContent = `Топ-1000 обновлён. Эти игры больше в него не входят или были заменены. Их можно удалить:`;
+            header.textContent = `Топ-1000 обновлён. Эти игры больше в него не входят или были заменены на такие же. Возможно вам придётся заного отметить пройденные.`;
             list.innerHTML = '';
             removedGames.forEach(g => {
                 const row = document.createElement('div');
@@ -6633,7 +6629,7 @@
                     cell.classList.remove('completed', 'in-progress');
                     if (g.completed) cell.classList.add('completed');
                     if (g.inProgress) cell.classList.add('in-progress');
-                    console.log('[cross-pass1]', id, g.name, 'completed=', !!g.completed, 'hasClass=', cell.classList.contains('completed'));
+                    
                 }
             });
             setTimeout(() => {
@@ -6645,7 +6641,7 @@
                         if (!g.completed && cell.classList.contains('completed')) cell.classList.remove('completed');
                         if (g.inProgress && !cell.classList.contains('in-progress')) cell.classList.add('in-progress');
                         if (!g.inProgress && cell.classList.contains('in-progress')) cell.classList.remove('in-progress');
-                        console.log('[cross-pass2]', id, g.name, 'completed=', !!g.completed, 'hasClass=', cell.classList.contains('completed'));
+                        
                     }
                 });
             }, 0);
@@ -7296,6 +7292,8 @@
             if (event.target.classList.contains('modal') && !isInputActive) {
                 if (event.target === addGameModal) {
                     closeAddGameModal();
+                } else if (event.target.id === 'syncNoticeModal') {
+                    return;
                 } else {
                     closeModal(event.target);
                 }
@@ -7858,6 +7856,11 @@
         window.addEventListener('click', (event) => {
             if (event.target === selectOptionsModal) {
                 selectOptionsModal.style.display = 'none';
+            }
+        });
+        document.getElementById('syncNoticeModal').addEventListener('click', (event) => {
+            if (event.target.id === 'syncNoticeModal') {
+                event.stopPropagation();
             }
         });
 
