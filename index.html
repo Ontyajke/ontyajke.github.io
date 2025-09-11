@@ -5037,19 +5037,34 @@
             }
             lastInProgressSignature = signature;
 
-            inProgressRow.innerHTML = '';
+            const existingCells = Array.from(inProgressRow.children);
+            const expectedIdsArr = inProgressGames.map(g => String(g.id));
+            const expectedIdSet = new Set(expectedIdsArr);
 
-            const fragment = document.createDocumentFragment();
-
-            inProgressGames.forEach(game => {
-                const cell = createCell(game);
-
-                
-
-                fragment.appendChild(cell);
+            const seen = new Set();
+            existingCells.forEach(cell => {
+                const id = cell.getAttribute('data-game-id');
+                if (!expectedIdSet.has(id) || seen.has(id)) {
+                    cell.remove();
+                } else {
+                    seen.add(id);
+                }
             });
 
-            inProgressRow.appendChild(fragment);
+            for (let i = 0; i < expectedIdsArr.length; i++) {
+                const id = expectedIdsArr[i];
+                let cell = Array.from(inProgressRow.querySelectorAll(`.cell[data-game-id="${id}"]`))[0] || null;
+                if (!cell) {
+                    cell = createCell(inProgressGames[i]);
+                    const before = inProgressRow.children[i] || null;
+                    inProgressRow.insertBefore(cell, before);
+                } else {
+                    const atI = inProgressRow.children[i];
+                    if (atI !== cell) {
+                        inProgressRow.insertBefore(cell, atI || null);
+                    }
+                }
+            }
 
             inProgressRow.style.display = inProgressRow.children.length > 0 ? 'flex' : 'none';
             inProgressRow.style.justifyContent = 'flex-start';
