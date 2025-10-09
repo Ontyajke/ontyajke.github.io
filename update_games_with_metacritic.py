@@ -4,11 +4,9 @@ import glob
 import logging
 import sys
 
-# Константы
-METACRITIC_DATA_FILE = 'meta_data/metacritic_ratings.json'  # Файл с данными Metacritic
-LOG_FILE = 'update_games_with_metacritic.log'  # Файл для логирования
+METACRITIC_DATA_FILE = 'meta_data/metacritic_ratings.json'
+LOG_FILE = 'update_games_with_metacritic.log'
 
-# Настройка логирования
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
@@ -19,7 +17,6 @@ logging.basicConfig(
 )
 
 def load_metacritic_data():
-    """Загружает данные Metacritic из файла."""
     if os.path.exists(METACRITIC_DATA_FILE):
         try:
             with open(METACRITIC_DATA_FILE, 'r', encoding='utf-8') as f:
@@ -32,15 +29,12 @@ def load_metacritic_data():
         return {"games": {}, "last_updated": "", "total_games": 0}
 
 def update_games_with_metacritic():
-    """Обновляет данные игр с учетом рейтингов Metacritic."""
-    # Загружаем данные Metacritic
     metacritic_data = load_metacritic_data()
 
     if not metacritic_data['games']:
         logging.warning("Нет данных Metacritic для обновления игр.")
         return
 
-    # Получаем список файлов с играми
     game_files = sorted(glob.glob('data/games_*.json'))
 
     if not game_files:
@@ -49,38 +43,31 @@ def update_games_with_metacritic():
 
     logging.info(f"Найдено {len(game_files)} файлов с играми.")
 
-    # Счетчики для статистики
     total_games = 0
     updated_games = 0
 
-    # Обновляем каждый файл с играми
     for file_path in game_files:
         logging.info(f"Обновляем файл {file_path}...")
 
         try:
-            # Загружаем игры из файла
             with open(file_path, 'r', encoding='utf-8') as f:
                 games = json.load(f)
 
             total_games += len(games)
 
-            # Обновляем данные игр
             updated = False
             file_updated_games = 0
 
             for game in games:
                 game_id = str(game.get('id'))
 
-                # Если для игры есть данные Metacritic, обновляем их
                 if game_id in metacritic_data['games']:
                     mc_data = metacritic_data['games'][game_id]
 
-                    # Добавляем данные Metacritic в игру
                     if 'metacritic' not in game:
                         game['metacritic'] = {}
                         updated = True
 
-                    # Обновляем только оценки и URL
                     game['metacritic']['metascore'] = mc_data.get('metascore')
                     game['metacritic']['userscore'] = mc_data.get('userscore')
                     game['metacritic']['url'] = mc_data.get('url')
@@ -88,7 +75,6 @@ def update_games_with_metacritic():
 
                     file_updated_games += 1
 
-            # Если были обновления, сохраняем файл
             if updated:
                 new_content = json.dumps(games, ensure_ascii=False)
                 old_content = None
@@ -113,7 +99,6 @@ def update_games_with_metacritic():
     logging.info(f"Обновлено игр: {updated_games}")
 
 def main():
-    """Основная функция скрипта."""
     logging.info("Начинаем обновление данных игр с учетом рейтингов Metacritic...")
     try:
         update_games_with_metacritic()
