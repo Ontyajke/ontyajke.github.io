@@ -28,7 +28,6 @@ logging.basicConfig(
 )
 
 def load_metacritic_data():
-    """Загружает существующие данные Metacritic из файла."""
     if os.path.exists(METACRITIC_DATA_FILE):
         try:
             with open(METACRITIC_DATA_FILE, 'r', encoding='utf-8') as f:
@@ -44,7 +43,6 @@ def load_metacritic_data():
         return {"games": {}, "last_updated": "", "total_games": 0, "last_processed_index": 0}
 
 def save_metacritic_data(data):
-    """Сохраняет данные Metacritic в файл."""
     os.makedirs(os.path.dirname(METACRITIC_DATA_FILE), exist_ok=True)
     try:
         new_content = json.dumps(data, ensure_ascii=False, indent=2)
@@ -62,7 +60,6 @@ def save_metacritic_data(data):
         logging.error(f"Ошибка при сохранении данных Metacritic: {e}")
 
 def load_all_games():
-    """Загружает все игры из файлов games_*.json."""
     all_games = []
     game_files = sorted(glob.glob('data/games_*.json'))
 
@@ -85,16 +82,6 @@ def load_all_games():
     return all_games
 
 def get_metacritic_data(game_name, platform=None):
-    """
-    Получает данные о рейтинге игры с Metacritic.
-
-    Args:
-        game_name: Название игры
-        platform: Платформа (опционально)
-
-    Returns:
-        dict: Данные о рейтинге игры или None в случае ошибки
-    """
     if not isinstance(game_name, str):
         logging.error(f"Название игры должно быть строкой, получено: {type(game_name)}")
         return None
@@ -212,16 +199,16 @@ def get_metacritic_data(game_name, platform=None):
     game_name = game_name.strip('-')
 
     special_cases = {
-        # Римские цифры
+
         "hades-2": "hades-ii",
         "red-dead-redemption-2": "red-dead-redemption-ii",
 
-        # Особые случаи с дефисами
+
         "marvels-spiderman": "marvels-spider-man",
         "marvels-spiderman-2": "marvels-spider-man-2",
         "your-turn-to-die": "Your Turn To Die -Death Game By Majority-",
 
-        # Особые случаи с сокращениями
+
         "nier-replicant-ver122474487139": "nier-replicant",
         "dragon-quest-xi-s-echoes-of-an-elusive-age-definitive-edition": "dragon-quest-xi-s"
     }
@@ -392,20 +379,20 @@ def get_metacritic_data(game_name, platform=None):
 
                 if metascore is None:
                     metascore_selectors = [
-                        # Дизайн 2025
+
                         'div[class*="metascore"]',
                         'span[class*="metascore"]',
                         'div.c-productHero_metascore',
                         'span.c-productHero_metascore',
-                        # Специфичные селекторы для дизайна 2025
+
                         'div.c-productHero_metascoreContainer',
                         'span.c-productHero_metascoreContainer',
                         'div.c-productHero_metascoreNumber',
                         'span.c-productHero_metascoreNumber',
-                        # Новый дизайн
+
                         'div.c-productScoreInfo span.c-metascore, div.c-productScoreInfo div.c-metascore',
                         'span.c-metascore, div.c-metascore',
-                        # Старый дизайн
+
                         'div.metascore_w.game span',
                         'div.metascore_w span',
                         'div.metascore_w.xlarge span',
@@ -458,20 +445,20 @@ def get_metacritic_data(game_name, platform=None):
 
                 if userscore is None:
                     userscore_selectors = [
-                        # Дизайн 2025
+
                         'div[class*="userscore"]',
                         'span[class*="userscore"]',
                         'div.c-productHero_userscore',
                         'span.c-productHero_userscore',
-                        # Специфичные селекторы для дизайна 2025
+
                         'div.c-productHero_userscoreContainer',
                         'span.c-productHero_userscoreContainer',
                         'div.c-productHero_userscoreNumber',
                         'span.c-productHero_userscoreNumber',
-                        # Новый дизайн
+
                         'div.c-productScoreInfo span.c-userscore, div.c-productScoreInfo div.c-userscore',
                         'span.c-userscore, div.c-userscore',
-                        # Старый дизайн
+
                         'div.metascore_w.user.large.game',
                         'div.metascore_w.user',
                         'div.userscore_wrap div.metascore_w'
@@ -525,7 +512,7 @@ def get_metacritic_data(game_name, platform=None):
                         elem_text = elem.text.strip()
                         if re.match(r'^\d+$', elem_text) and 60 <= int(elem_text) <= 100:
                             metascore = int(elem_text)
-                            logging.info(f"Найден Metascore в HTML-элементе: {metascore}")
+                            logging.info(f"Найден Metascore в HTML: {metascore}")
                             break
 
                 if userscore is None:
@@ -534,7 +521,7 @@ def get_metacritic_data(game_name, platform=None):
                         elem_text = elem.text.strip()
                         if re.match(r'^\d+\.\d+$', elem_text) and 6.0 <= float(elem_text) <= 10.0:
                             userscore = float(elem_text)
-                            logging.info(f"Найден User Score в HTML-элементе: {userscore}")
+                            logging.info(f"Найден User Score в HTML: {userscore}")
                             break
 
                 if metascore is None:
@@ -570,7 +557,7 @@ def get_metacritic_data(game_name, platform=None):
 
                                         if is_valid:
                                             metascore = score
-                                            logging.info(f"Найден Metascore в HTML-коде: {metascore}")
+                                            logging.info(f"Найден Metascore в HTML: {metascore}")
                                             break
                                 except ValueError:
                                     continue
@@ -609,7 +596,7 @@ def get_metacritic_data(game_name, platform=None):
 
                                         if is_valid:
                                             userscore = score
-                                            logging.info(f"Найден User Score в HTML-коде: {userscore}")
+                                            logging.info(f"Найден User Score в HTML: {userscore}")
                                             break
                                 except ValueError:
                                     continue
@@ -734,15 +721,15 @@ def get_metacritic_data(game_name, platform=None):
 
                     if not release_date:
                         release_date_selectors = [
-                            # Дизайн 2025
+
                             'div[class*="releaseDate"]',
                             'span[class*="releaseDate"]',
                             'div.c-gameDetails_releaseDate',
                             'span.c-gameDetails_releaseDate',
-                            # Новый дизайн
+                            
                             'div.c-gameDetails_ReleaseDate, div.c-gameDetails_releaseDate',
                             'span.c-gameDetails_ReleaseDate, span.c-gameDetails_releaseDate',
-                            # Старый дизайн
+                            
                             'li.summary_detail.release_data div.data',
                             'div.release_data'
                         ]
@@ -837,7 +824,6 @@ def get_metacritic_data(game_name, platform=None):
             first_word = re.sub(r'[^a-z0-9\-]', '', first_word)
             variants.append((first_word, "только первое слово"))
 
-        # Определяем индикаторы DLC вне условия
         dlc_indicators = ["dlc", "expansion", "addon", "add-on", "shadow of", "part ii", "part 2"]
         if any(indicator in original.lower() for indicator in dlc_indicators):
             base_name = re.split(r'[:\-]', original)[0].strip()
@@ -895,10 +881,8 @@ def get_metacritic_data(game_name, platform=None):
     return None
 
 def update_metacritic_data(reset_index=False):
-    """Обновляет данные Metacritic для игр."""
     metacritic_data = load_metacritic_data()
 
-    # Если указан флаг reset_index, сбрасываем индекс
     if reset_index:
         metacritic_data['last_processed_index'] = 0
         logging.info("Сбрасываем индекс последней обработанной игры на 0 (начинаем сначала)")
@@ -955,9 +939,7 @@ def update_metacritic_data(reset_index=False):
         last_processed_index = 0
         logging.info(f"Начинаем обновление данных Metacritic для {total_games} игр...")
 
-    # all_games.sort(key=lambda g: g.get('id', 0))
     # Обрабатываем игры в том порядке, в котором они находятся в файлах
-
     for i, game in enumerate(all_games[last_processed_index:], start=last_processed_index):
         game_id = str(game.get('id'))
         game_name = game.get('name')
@@ -968,12 +950,11 @@ def update_metacritic_data(reset_index=False):
             error_games += 1
             continue
 
-        # Определяем, завершен ли полный цикл сбора данных
         is_first_run = not metacritic_data.get('full_cycle_complete', False)
 
         # Если это первый запуск, пропускаем проверку на старые/не старые игры
         if is_first_run and processed_games == 0 and game_id in metacritic_data['games']:
-            logging.info(f"Полный цикл сбора данных еще не завершен. Пропускаем проверку на старые/не старые игры.")
+            logging.info(f"Полный цикл еще не завершен. Пропускаем проверку на старые/не старые игры.")
 
         if game_id in metacritic_data['games'] and not is_first_run:
             game_data = metacritic_data['games'][game_id]
@@ -1351,21 +1332,21 @@ def update_metacritic_data(reset_index=False):
 
     # Проверяем, завершен ли полный цикл сбора данных
     if last_processed_index + processed_games >= total_games:
-        logging.info(f"Завершен полный цикл сбора данных. Можно начинать проверку на старые/не старые игры.")
+        logging.info(f"Завершен полный цикл сбора данных. Начинаем проверку на старые/не старые игры.")
         # Добавляем флаг, что завершен полный цикл сбора данных
         metacritic_data['full_cycle_complete'] = True
     elif not metacritic_data.get('full_cycle_complete', False):
-        logging.info(f"Полный цикл сбора данных еще не завершен: обработано {last_processed_index + processed_games}/{total_games} игр. Продолжаем сбор данных.")
+        logging.info(f"Полный цикл сбора данных еще не завершен: обработано {last_processed_index + processed_games}/{total_games} игр. Продолжаем.")
         # Не меняем флаг, если он уже установлен в True
         if 'full_cycle_complete' not in metacritic_data:
             metacritic_data['full_cycle_complete'] = False
 
     if processed_games >= total_games or requests_count >= MAX_REQUESTS_PER_RUN:
         metacritic_data['last_processed_index'] = 0
-        logging.info("Обработка завершена или достигнут лимит запросов. Сбрасываем индекс для следующего запуска.")
+        logging.info("Обработка завершена или достигнут лимит запросов.")
     else:
         metacritic_data['last_processed_index'] = last_processed_index + processed_games
-        logging.info(f"Сохраняем индекс {metacritic_data['last_processed_index']} для продолжения в следующий раз.")
+        logging.info(f"Сохраняем индекс {metacritic_data['last_processed_index']}.")
 
     save_metacritic_data(metacritic_data)
 
@@ -1418,23 +1399,19 @@ def update_metacritic_data(reset_index=False):
     logging.info(f"  - Игр, которые больше не требуют обновлений: {games_no_more_updates}")
 
 def main():
-    """Основная функция скрипта."""
-    # Проверяем аргументы командной строки
     if len(sys.argv) > 1 and sys.argv[1] == "--reset":
-        # Удаляем файл с данными Metacritic, если он существует
         if os.path.exists(METACRITIC_DATA_FILE):
             try:
                 os.remove(METACRITIC_DATA_FILE)
-                logging.info(f"Файл {METACRITIC_DATA_FILE} успешно удален. Данные будут собраны заново.")
+                logging.info(f"Файл {METACRITIC_DATA_FILE} успешно удален.")
             except Exception as e:
                 logging.error(f"Не удалось удалить файл {METACRITIC_DATA_FILE}: {e}")
                 sys.exit(1)
         else:
-            logging.info(f"Файл {METACRITIC_DATA_FILE} не существует. Данные будут собраны заново.")
+            logging.info(f"Файл {METACRITIC_DATA_FILE} не существует.")
 
     logging.info("Начинаем сбор данных с Metacritic...")
     try:
-        # Если был указан флаг --reset, передаем его в функцию update_metacritic_data
         reset_index = len(sys.argv) > 1 and sys.argv[1] == "--reset"
         update_metacritic_data(reset_index=reset_index)
         logging.info("Сбор данных с Metacritic завершен успешно.")
