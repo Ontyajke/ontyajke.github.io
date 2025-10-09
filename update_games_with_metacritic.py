@@ -38,7 +38,7 @@ def update_games_with_metacritic():
     game_files = sorted(glob.glob('data/games_*.json'))
 
     if not game_files:
-        logging.error("Ошибка: файлы с играми не найдены в директории data!")
+        logging.error("Ошибка: файлы с играми не найдены в директории data")
         return
 
     logging.info(f"Найдено {len(game_files)} файлов с играми.")
