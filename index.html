@@ -802,7 +802,6 @@ body {
     position: fixed;
     top: 40px;
     left: 10px;
-    bottom: 5px;
     background-color: #333;
     padding: 15px; 
     border-radius: 12px;
@@ -2814,6 +2813,7 @@ function adjustFiltersPanelHeight() {
         const baseFont = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
         const minListH = 1.2 * baseFont + 14;
         const yearBlock = panel.querySelector('.year-slider-container');
+        const timeBlock = panel.querySelector('.time-slider-container');
         const h4s = Array.from(panel.querySelectorAll('h4'));
         const filterButtonsBlock = document.getElementById('filterButtons');
         const resetBtn = document.getElementById('resetFiltersButton');
@@ -2826,8 +2826,11 @@ function adjustFiltersPanelHeight() {
             return el.offsetHeight + parseFloat(cs.marginTop) + parseFloat(cs.marginBottom);
         };
 
-        const topReserve = getOuter(yearBlock) + h4s.reduce((sum, h) => sum + getOuter(h), 0);
+        const topReserve = getOuter(yearBlock) + getOuter(timeBlock) + h4s.reduce((sum, h) => sum + getOuter(h), 0);
         const bottomReserve = getOuter(filterButtonsBlock) + (resetWrapper ? getOuter(resetWrapper) : getOuter(resetBtn)) + getOuter(saturationBlock) + 40;
+        
+        const viewportHeight = window.innerHeight;
+        const maxPanelHeight = viewportHeight - 100;
         
         const maxItems = 10;
         const maxHeightFor10Items = 280;
@@ -2835,17 +2838,17 @@ function adjustFiltersPanelHeight() {
         const availableForLists = maxHeightFor10Items * 2;
         const totalPanelHeight = topReserve + availableForLists + bottomReserve;
         
-        const maxH = Math.max(300, totalPanelHeight);
+        const maxH = Math.min(maxPanelHeight, totalPanelHeight);
         panel.style.maxHeight = maxH + 'px';
 
         const innerH = panel.clientHeight;
         const available = Math.max(0, innerH - topReserve - bottomReserve);
         const perList = Math.max(minListH, Math.floor(available / 2));
         
-        const finalHeight = Math.min(perList, maxHeightFor10Items);
+        const maxListHeight = Math.min(perList, maxHeightFor10Items);
         
-        platforms.style.maxHeight = finalHeight + 'px';
-        genres.style.maxHeight = finalHeight + 'px';
+        platforms.style.maxHeight = maxListHeight + 'px';
+        genres.style.maxHeight = maxListHeight + 'px';
     }
 }
 
@@ -9623,13 +9626,16 @@ filtersButton.addEventListener('click', (event) => {
             setTimeout(setListsHeight, 10);
         }
         if (typeof adjustFiltersPanelHeight === 'function') {
-            setTimeout(adjustFiltersPanelHeight, 0);
-            const ro = new ResizeObserver(() => adjustFiltersPanelHeight());
-            const panelEl = document.getElementById('filtersPanel');
-            if (panelEl) ro.observe(panelEl);
+            setTimeout(adjustFiltersPanelHeight, 50);
+            setTimeout(adjustFiltersPanelHeight, 100);
+            setTimeout(adjustFiltersPanelHeight, 200);
+            window.addEventListener('resize', adjustFiltersPanelHeight);
         }
     } else {
         filtersPanel.style.display = 'none';
+        if (typeof adjustFiltersPanelHeight === 'function') {
+            window.removeEventListener('resize', adjustFiltersPanelHeight);
+        }
     }
 });
 resetFiltersButton.addEventListener('click', resetFilters);
